@@ -193,7 +193,6 @@ var Hlynux = {
     },
 
     append: function(arg, cmd){
-        console.log(arg);
         var file = Hlynux.path(arg);
         file["~"]["content"] += cmd.STDIN;
     },
