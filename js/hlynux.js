@@ -200,7 +200,7 @@ var Hlynux = {
 
     alias: function(arg, cmd){
         // var arg = getIN("alias")[0];
-        // var v = arg[0];
+        var v = arg[0];
         // var s = $.trim(arg.join(" ").split("=")[1]);
         Terminal.aliases[v] = new UserCommand(arg[1],arg.slice(2), cmd.directive);
     },
