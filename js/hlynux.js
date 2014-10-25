@@ -149,8 +149,8 @@ var Hlynux = {
         Hlynux.envVars[v] = data;
     },
 
-    cats: function(){
-        print("<img src='http://sjoerd.luon.net/posts/2012/07/hacker-cat.jpg'/>");
+    cats: function(arg, cmd){
+        cmd.print("<img src='http://sjoerd.luon.net/posts/2012/07/hacker-cat.jpg'/>");
     },
 
     echo: function(arg){
@@ -426,6 +426,7 @@ var Hlynux = {
 
     js: function(arg, cmd){
         // var arg = getIN("js")[0];
+        console.log(arg);
         if(arg[0] == undefined)
         {
             var jsInterp = function(data){
@@ -435,7 +436,7 @@ var Hlynux = {
                 }
                 catch(err)
                 {
-                    print(Hlynux.errorCol(err));
+                    cmd.print(Hlynux.errorCol(err));
                 }
             }
             Terminal.spawn = false;
@@ -462,7 +463,7 @@ var Hlynux = {
                 cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
                 // getOUT("js").push(Hlynux.errorCol("js: Not a file: ") + arg[0]);
         }
-        updateFS()
+        updateFS();
     },
 
     cd: function(arg, cmd){

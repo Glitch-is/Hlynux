@@ -1,153 +1,154 @@
 var Terminal, UserCommand, Commands;
-(function(){
-    function print(s) {
-        if(typeof s == "object")
-        {
-            for (x in s)
-                print(s[x]);
-        }
-        else
-        {
-            var div = $("<div class='line' style='width:100%'>");
-            div.append(s)
-            $("#out").append(div);
-        }
+function print(s) {
+    if(typeof s == "object")
+    {
+        for (x in s)
+            print(s[x]);
     }
+    else
+    {
+        var div = $("<div class='line' style='width:100%'>");
+        div.append(s)
+        $("#out").append(div);
+    }
+}
 
-    function bottom(){
-        $("html, body").animate({ scrollTop: $(document).height() }, 1);
+function bottom(){
+    $("html, body").animate({ scrollTop: $(document).height() }, 1);
+};
+
+function read(promp, fun) {
+    var msg;
+    var updatePrump = function(){
+        if(typeof promp == "function")
+            msg = promp();
+        else
+            msg = promp;
     };
+    updatePrump();
 
-    function read(promp, fun) {
-        var msg;
-        var updatePrump = function(){
-            if(typeof promp == "function")
-                msg = promp();
-            else
-                msg = promp;
-        };
-        updatePrump();
-
-        $("#txt").off("input keydown keyup");
-        $("#txt").val("");
-        updateCMD(msg);
-        $("#txt").on("keydown", function(e){
-            if(e.which == 9) // Tab
+    $("#txt").off("input keydown keyup");
+    $("#txt").val("");
+    updateCMD(msg);
+    $("#txt").on("keydown", function(e){
+        if(e.which == 9) // Tab
+        {
+            e.preventDefault();
+            if($("#txt").val() == "")
+                return;
+            var a = $("#txt").val().split(" ");
+            b = a[a.length - 1];
+            var res = [];
+            var keys =Object.keys(Terminal.Commands);
+            for (c in keys)
             {
-                e.preventDefault();
-                if($("#txt").val() == "")
-                    return;
-                var a = $("#txt").val().split(" ");
-                b = a[a.length - 1];
-                var res = [];
-                var keys =Object.keys(Terminal.Commands);
-                for (c in keys)
+                if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
+                    res.push(keys[c]);
+            }
+            var dirs = Hlynux.path(Hlynux.cwd);
+            for (d in dirs)
+            {
+                if(d != "~" && d.length >= b.length)
                 {
-                    if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
-                        res.push(keys[c]);
-                }
-                var dirs = Hlynux.path(Hlynux.cwd);
-                for (d in dirs)
-                {
-                    if(d != "~" && d.length >= b.length)
-                    {
-                        if(d.slice(0, b.length) == b)
-                            res.push(d);
-                    }
-                }
-                if(res.length == 1)
-                {
-                    a[a.length - 1]  = res[0];
-                    $("#txt").val(a.join(" "));
-                }
-                else if(res.length > 1)
-                {
-                    var div = $("<div class='line' style='width:100%'>" + Hlynux.envVars["PS1"]());
-                    div.append(document.createTextNode($("#txt").val()));
-                    $("#out").append(div);
-                    print(res.join("&nbsp;&nbsp;"));
+                    if(d.slice(0, b.length) == b)
+                        res.push(d);
                 }
             }
-            else if(e.which == 38) { // Up
-                var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
-                if(Terminal.histID < a.length)
-                    Terminal.histID++;
+            if(res.length == 1)
+            {
+                a[a.length - 1]  = res[0];
+                $("#txt").val(a.join(" "));
+            }
+            else if(res.length > 1)
+            {
+                var div = $("<div class='line' style='width:100%'>" + Hlynux.envVars["PS1"]());
+                div.append(document.createTextNode($("#txt").val()));
+                $("#out").append(div);
+                print(res.join("&nbsp;&nbsp;"));
+            }
+        }
+        else if(e.which == 38) { // Up
+            var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
+            if(Terminal.histID < a.length)
+                Terminal.histID++;
+            $("#txt").val(a[(a.length - 1) - Terminal.histID]);
+        }
+        else if(e.which == 40) { // Down
+            var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
+            if(Terminal.histID > 0)
+            {
+                Terminal.histID--;
                 $("#txt").val(a[(a.length - 1) - Terminal.histID]);
             }
-            else if(e.which == 40) { // Down
-                var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
-                if(Terminal.histID > 0)
-                {
-                    Terminal.histID--;
-                    $("#txt").val(a[(a.length - 1) - Terminal.histID]);
-                }
-                else
-                    $("#txt").val("");
-            }
-            else if(e.which == 13) // Enter
-                e.preventDefault();
             else
-            {
-                Terminal.histID = 0;
-            }
-            updateCMD(msg);
-        });
-        $("#txt").on("input keyup", function(e) {
-            if(e.which == 9) { // Tab
-                e.preventDefault();
-                return false;
-            }
-            else if(e.which == 13) { // Enter
-                e.preventDefault();
-                $("#txt").val($("#txt").val().split("\n")[0]);
-                var a = document.createTextNode($("#txt").val());
-                var div = $("<div class='line' style='width:100%'><span>" + msg + "</span>");
-                div.append(a)
-                $("#out").append(div);
-                fun($("#txt").val());
-                updatePrump();
                 $("#txt").val("");
-                bottom();
-                if(Terminal.update)
-                {
-                    Terminal.update = false;
-                    return;
-                }
-                if(Terminal.spawn)
-                {
-                    Terminal.spawn = true;
-                    updateCMD(msg);
-                    $("#txt").off("input keydown keyup");
-                    $("#cmd").html("");
-                    read(promp, fun);
-                    return;
-                }
-                if(Terminal.interp)
-                    updateCMD(msg);
-                return;
-            }
-            else if(e.which == 67 && e.ctrlKey) // Ctrl + C
+        }
+        else if(e.which == 13) // Enter
+            e.preventDefault();
+        else
+        {
+            Terminal.histID = 0;
+        }
+        updateCMD(msg);
+    });
+    $("#txt").on("input keyup", function(e) {
+        if(e.which == 9) { // Tab
+            e.preventDefault();
+            return false;
+        }
+        else if(e.which == 13) { // Enter
+            e.preventDefault();
+            $("#txt").val($("#txt").val().split("\n")[0]);
+            var a = document.createTextNode($("#txt").val());
+            var div = $("<div class='line' style='width:100%'><span>" + msg + "</span>");
+            div.append(a)
+            $("#out").append(div);
+            fun($("#txt").val());
+            updatePrump();
+            $("#txt").val("");
+            bottom();
+            if(Terminal.update)
             {
-                read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
+                Terminal.update = false;
                 return;
             }
-            updateCMD(msg);
-        });
-    };
+            if(Terminal.spawn)
+            {
+                Terminal.spawn = true;
+                updateCMD(msg);
+                $("#txt").off("input keydown keyup");
+                $("#cmd").html("");
+                read(promp, fun);
+                return;
+            }
+            if(Terminal.interp)
+                updateCMD(msg);
+            return;
+        }
+        else if(e.which == 67 && e.ctrlKey) // Ctrl + C
+        {
+            read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
+            return;
+        }
+        updateCMD(msg);
+    });
+};
+function updateCMD(promp){
+    var b = $("#txt").val();
+    var beg = document.createTextNode(b.slice(0, Terminal.curPos()));
+    var end = document.createTextNode(b.slice(Terminal.curPos()+1, b.length));
+    var curs = "<span class='cursor'>" + (Terminal.curPos() < b.length ? b[Terminal.curPos()] : "&nbsp;") + "</span>"
+    var a = document.createTextNode(b);
 
-    function updateCMD(promp){
-        var b = $("#txt").val();
-        var beg = document.createTextNode(b.slice(0, Terminal.curPos()));
-        var end = document.createTextNode(b.slice(Terminal.curPos()+1, b.length));
-        var curs = "<span class='cursor'>" + (Terminal.curPos() < b.length ? b[Terminal.curPos()] : "&nbsp;") + "</span>"
-        var a = document.createTextNode(b);
+    var line =  $("<div class='line' style='width:100%'><span>" + promp + "</span>");
+    line.append(beg);
+    line.append(curs);
+    line.append(end);
+    $("#cmd").html(line);
+};
+(function(){
 
-        var line =  $("<div class='line' style='width:100%'><span>" + promp + "</span>");
-        line.append(beg);
-        line.append(curs);
-        line.append(end);
-        $("#cmd").html(line);
-    };
+    
     Commands = {
         commands: {
             "ls": Hlynux.ls,
@@ -190,7 +191,7 @@ var Terminal, UserCommand, Commands;
             print(Hlynux.errorCol("sh: command not found: ") + command);
             this.invalid = true;
         }
-        this.args.concat(args); // For aliases to work properly
+        this.args = this.args.concat(args); // For aliases to work properly
         this.directive = directive || UserCommand.Directives.NONE;
         this.STDIN = [];
         this.STDOUT = [];
