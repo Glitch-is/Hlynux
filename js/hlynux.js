@@ -188,13 +188,13 @@ var Hlynux = {
     },
 
     write: function(arg, cmd){
-        // TODO: i dunno how to implement this
-        console.log(arg);
+        file = Hlynux.path(arg);
+        file["~"]["content"] = cmd;
     },
 
     append: function(arg, cmd){
-        // TODO: i dunno how to implement this
-        console.log(arg);
+        file = Hlynux.path(arg);
+        file["~"]["content"] += cmd;
     },
 
     alias: function(arg, cmd){
