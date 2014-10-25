@@ -13,20 +13,11 @@ function link(name, path, modified, access, owner, group)
     this["~"] = {type: "l", name: name, modified: getDateTime(), owner: (typeof owner !== 'undefined' ? owner : Hlynux.envVars["USER"]), group: (typeof group !== 'undefined' ? group : Hlynux.envVars["USER"]), access: (typeof access !== 'undefined' ? access : "755"), path: path}
 };
 
-function command(name, func)
-{
-    this.name = name;
-    this.func = func;
-    this.STDIN = [];
-    this.STDOUT = [];
-    this.STDERR = [];
-
-    this.cleanUp = function(){
-        this.STDIN = [];
-        this.STDOUT = [];
-        this.STDERR = [];
-    };
-};
+// function command(name, func)
+// {
+//     this.name = name;
+//     this.func = func;
+// };
 
 function getIN(cmd)
 {
@@ -151,8 +142,8 @@ var Hlynux = {
         this.path("~/.history")["~"]["content"]+=com+"\n";
     },
 
-    exportVar: function(){
-        var arg = getIN("export")[0];
+    exportVar: function(arg){
+        // var arg = getIN("export")[0];
         var v = arg[0];
         var data = $.trim(arg.join(" ").split("=")[1]);
         Hlynux.envVars[v] = data;
@@ -162,8 +153,8 @@ var Hlynux = {
         print("<img src='http://sjoerd.luon.net/posts/2012/07/hacker-cat.jpg'/>");
     },
 
-    echo: function(){
-        var arg = getIN("echo")[0];
+    echo: function(arg){
+        // var arg = getIN("echo")[0];
         var s = arg.join(" ");
         var ret = [];
         var arr = s.split(" ");
@@ -176,31 +167,46 @@ var Hlynux = {
             }
             ret.push(arr[w]);
         }
-        getOUT("echo").push(ret.join(" "));
+        // getOUT("echo").push(ret.join(" "));
+        cmd.print(ret.join(" "));
     },
 
-    cat: function(){
-        var arg = getIN("cat")[0];
-        var file = arg[0];
-        f = Hlynux.path(file);
-        if(f != undefined && f["~"]["content"] != undefined)
-        {
-            arr = f["~"]["content"].split("\n");
-            getOUT("cat").push(arr);
+    cat: function(arg, cmd){
+        // var arg = getIN("cat")[0];
+        if(arg.length >= 1){
+            var file = arg[0];
+            f = Hlynux.path(file);
+            if(f != undefined && f["~"]["content"] != undefined)
+            {
+                arr = f["~"]["content"];//.split("\n");
+                // getOUT("cat").push(arr);
+                cmd.print(arr);
+            }
+        } else {
+            cmd.print(cmd.STDIN.join("\n"));
         }
     },
 
-    aliases: {"l": "ls -la", "c": "cd", "..": "cd .."},
-
-    alias: function(){
-        var arg = getIN("alias")[0];
-        var v = arg[0];
-        var s = $.trim(arg.join(" ").split("=")[1]);
-        Hlynux.aliases[v] = s;
+    write: function(arg, cmd){
+        // TODO: i dunno how to implement this
+        console.log(arg);
     },
 
-    date: function(){
-        getOUT("date").push(getDateTime());
+    append: function(arg, cmd){
+        // TODO: i dunno how to implement this
+        console.log(arg);
+    },
+
+    alias: function(arg, cmd){
+        // var arg = getIN("alias")[0];
+        // var v = arg[0];
+        // var s = $.trim(arg.join(" ").split("=")[1]);
+        Terminal.aliases[v] = new UserCommand(arg[1],arg.slice(2), cmd.directive);
+    },
+
+    date: function(arg, cmd){
+        cmd.print(getDateTime());
+        // getOUT("date").push(getDateTime());
     },
 
     path: function(p, abs){
@@ -310,9 +316,9 @@ var Hlynux = {
         return arr;
     },
 
-    ln: function()
+    ln: function(arg)
     {
-        var arg = getIN("ln")[0];
+        // var arg = getIN("ln")[0];
         var opt;
         var f;
         var l;
@@ -343,8 +349,8 @@ var Hlynux = {
         updateFS()
     },
 
-    mkdir: function(){
-        var arg = getIN("mkdir")[0];
+    mkdir: function(arg){
+        // var arg = getIN("mkdir")[0];
         var p = arg[0];
         if(Hlynux.path(p) == undefined)
         {
@@ -353,12 +359,13 @@ var Hlynux = {
             Hlynux.path(Hlynux.upDirPath(p))[dir] = new directory(dir);
         }
         else
-            getOUT("mvdir").push(Hlynux.errorCol("mkdir: cannot create directory '"+p+"': File exists"));
+            cmd.print(Hlynux.errorCol("mkdir: cannot create directory '"+p+"': File exists"));
+            // getOUT("mvdir").push(Hlynux.errorCol("mkdir: cannot create directory '"+p+"': File exists"));
         updateFS()
     },
 
-    rmdir: function(){
-        var arg = getIN("rmdir")[0];
+    rmdir: function(arg){
+        // var arg = getIN("rmdir")[0];
         var p = arg[0]
         p = Hlynux.path(p, true);
         if(Object.keys(Hlynux.path(p)).length == 1)
@@ -368,12 +375,13 @@ var Hlynux = {
             delete Hlynux.path(Hlynux.upDirPath(p))[dir];
         }
         else
-            getOUT("rmdir").push(Hlynux.errorCol("rmdir: failed to remove '"+p+"': Directory not empty"))
+            cmd.print(Hlynux.errorCol("rmdir: failed to remove '"+p+"': Directory not empty"));
+            // getOUT("rmdir").push(Hlynux.errorCol("rmdir: failed to remove '"+p+"': Directory not empty"))
         updateFS()
     },
 
-    mv: function(){
-        var arg = getIN("mv")[0];
+    mv: function(arg){
+        // var arg = getIN("mv")[0];
         var o = arg[0];
         var d = arg[1];
         Hlynux.path(Hlynux.upDirPath(d))[d] = Hlynux.path(o);
@@ -381,16 +389,16 @@ var Hlynux = {
         updateFS()
     },
 
-    cp: function(){
-        var arg = getIN("cp")[0];
+    cp: function(arg){
+        // var arg = getIN("cp")[0];
         var o = arg[0];
         var d = arg[1];
         Hlynux.path(Hlynux.upDirPath(d))[d] = Hlynux.path(o);
         updateFS()
     },
 
-    rm: function(){
-        var arg = getIN("rm")[0];
+    rm: function(arg){
+        // var arg = getIN("rm")[0];
         var p = Hlynux.path(arg[0]);
         if(p["~"]["type"] == "f")
         {
@@ -399,8 +407,8 @@ var Hlynux = {
         updateFS()
     },
 
-    touch: function(){
-        var arg = getIN("touch")[0];
+    touch: function(arg){
+        // var arg = getIN("touch")[0];
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
         if(Hlynux.path(p) == undefined)
@@ -416,8 +424,8 @@ var Hlynux = {
         updateFS()
     },
 
-    js: function(){
-        var arg = getIN("js")[0];
+    js: function(arg, cmd){
+        // var arg = getIN("js")[0];
         if(arg[0] == undefined)
         {
             var jsInterp = function(data){
@@ -446,17 +454,19 @@ var Hlynux = {
                 }
                 catch(err)
                 {
-                    getOUT("js").push(Hlynux.errorCol(err.message));
+                    // getOUT("js").push(Hlynux.errorCol(err.message));
+                    cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
                 }
             }
             else
-                getOUT("js").push(Hlynux.errorCol("js: Not a file: ") + arg[0]);
+                cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
+                // getOUT("js").push(Hlynux.errorCol("js: Not a file: ") + arg[0]);
         }
         updateFS()
     },
 
-    cd: function(){
-        var arg = getIN("cd")[0];
+    cd: function(arg, cmd){
+        // var arg = getIN("cd")[0];
         var dir = arg[0];
         if(dir == undefined || dir == "")
         {
@@ -479,11 +489,12 @@ var Hlynux = {
             }
         }
         else
-            getOUT("cd").push(Hlynux.errorCol("cd: no such file or directory: ") + dir);
+            cmd.print(Hlynux.errorCol("cd: no such file or directory: ") + dir);
+            // getOUT("cd").push(Hlynux.errorCol("cd: no such file or directory: ") + dir);
     },
 
-    ls: function(){
-        var arg = getIN("ls")[0];
+    ls: function(arg, cmd){
+        // var arg = getIN("ls")[0];
         var opt;
         var dir = "";
         if(arg[0] != undefined && arg[0][0] == "-")
@@ -517,7 +528,8 @@ var Hlynux = {
         }
         if($.inArray("l", opt) == -1)
             ret = ret.join("&nbsp;&nbsp;");
-        getOUT("ls").push(ret);
+        // getOUT("ls").push(ret);
+        cmd.print(ret);
     },
 
     fileInfo: function(f) {
@@ -555,16 +567,16 @@ var Hlynux = {
         }
     },
 
-    chmod: function() {
-        var arg = getIN("chmod")[0];
+    chmod: function(arg, cmd) {
+        // var arg = getIN("chmod")[0];
         var mode = arg[0];
         var file = Hlynux.path(arg[1]);
         file["~"]["access"] = mode;
         updateFS()
     },
 
-    chown: function() {
-        var arg = getIN("chown")[0];
+    chown: function(arg, cmd) {
+        // var arg = getIN("chown")[0];
         var owner  = arg[0]
         var file = Hlynux.path(arg[1]);
         file["~"]["owner"] = owner;
@@ -575,8 +587,9 @@ var Hlynux = {
         $("#out").html("");
     },
 
-    pwd: function(){
-        getOUT("pwd").push(Hlynux.cwd);
+    pwd: function(args, cmd){
+        // getOUT("pwd").push(Hlynux.cwd);
+        cmd.print(Hlynux.cwd);
     }
 };
 
