@@ -188,12 +188,12 @@ var Hlynux = {
     },
 
     write: function(arg, cmd){
-        var file = Hlynux.path(arg[0]);
+        var file = Hlynux.path(arg);
         file["~"]["content"] += cmd.STDIN;
     },
 
     append: function(arg, cmd){
-        var file = Hlynux.path(arg[0]);
+        var file = Hlynux.path(arg);
         file["~"]["content"] += cmd.STDIN;
     },
 
