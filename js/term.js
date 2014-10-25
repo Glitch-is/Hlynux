@@ -125,6 +125,12 @@ function read(promp, fun) {
                 updateCMD(msg);
             return;
         }
+        else if(e.which == 38) { // Up
+            e.preventDefault();
+        }
+        else if(e.which == 40) { // Down
+            e.preventDefault();
+        }
         else if(e.which == 67 && e.ctrlKey) // Ctrl + C
         {
             read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
@@ -148,7 +154,7 @@ function updateCMD(promp){
 };
 (function(){
 
-    
+
     Commands = {
         commands: {
             "ls": Hlynux.ls,
