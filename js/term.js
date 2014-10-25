@@ -161,7 +161,7 @@
                 this.args = Terminal.aliases[command].args;
                 this.directive = Terminal.aliases[command].directive;
             } else {
-                print(Hlynux.errorCol("sh: command not found: ") + c[0]);
+                print(Hlynux.errorCol("sh: command not found: ") + command);
                 this.invalid = true;
             }
         }
