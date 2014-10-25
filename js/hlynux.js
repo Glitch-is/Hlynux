@@ -190,11 +190,13 @@ var Hlynux = {
     write: function(arg, cmd){
         var file = Hlynux.path($.trim(arg));
         file["~"]["content"] += cmd.STDIN;
+        updateFS();
     },
 
     append: function(arg, cmd){
         var file = Hlynux.path($.trim(arg));
         file["~"]["content"] += cmd.STDIN;
+        updateFS();
     },
 
     alias: function(arg, cmd){
