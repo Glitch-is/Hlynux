@@ -85,6 +85,10 @@
             }
             else if(e.which == 13) // Enter
                 e.preventDefault();
+            else
+            {
+                Terminal.histID = 0;
+            }
             updateCMD(msg);
         });
         $("#txt").on("input keyup", function(e) {
@@ -125,10 +129,6 @@
             {
                 read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
                 return;
-            }
-            else
-            {
-                Terminal.histID = 0;
             }
             updateCMD(msg);
         });
