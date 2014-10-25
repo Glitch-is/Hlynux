@@ -1,3 +1,4 @@
+var Terminal, UserCommand, Commands;
 (function(){
     function print(s) {
         if(typeof s == "object")
@@ -147,25 +148,49 @@
         line.append(end);
         $("#cmd").html(line);
     };
+    Commands = {
+        commands: {
+            "ls": Hlynux.ls,
+            "cd": Hlynux.cd,
+            "mkdir": Hlynux.mkdir,
+            "rmdir": Hlynux.rmdir,
+            "pwd": Hlynux.pwd,
+            "date": Hlynux.date,
+            "export": Hlynux.exportVar,
+            "echo": Hlynux.echo,
+            "alias": Hlynux.alias,
+            "cat": Hlynux.cat,
+            "cats": Hlynux.cats,
+            "clear": Hlynux.clear,
+            "chmod": Hlynux.chmod,
+            "chown": Hlynux.chown,
+            "mv": Hlynux.mv,
+            "cp": Hlynux.cp,
+            "rm": Hlynux.rm,
+            "touch": Hlynux.touch,
+            "js": Hlynux.js,
+            "ln": Hlynux.ln,
+            "write": Hlynux.write,
+            "append": Hlynux.append
+        }
+    }
 
 
-    var UserCommand = function(command, args, directive){
+    UserCommand = function(command, args, directive){
         if (!(this instanceof UserCommand)) return new UserCommand(command,args,directive);
         this.commandString = command;
-        if(typeof Terminal !== "undefined"){ // Lazy way to handle aliases
-            if(command in Terminal.Commands){
-                this.command = Terminal.Commands[command];
-            }
-            else if (command in Terminal.aliases){
-                this.command = Terminal.aliases[command].command;
-                this.args = Terminal.aliases[command].args;
-                this.directive = Terminal.aliases[command].directive;
-            } else {
-                print(Hlynux.errorCol("sh: command not found: ") + command);
-                this.invalid = true;
-            }
+        this.args = [];
+        if (typeof Commands.aliases !== "undefined" && command in Commands.aliases){
+            this.command = Commands.aliases[command].command;
+            this.args = Commands.aliases[command].args;
+            this.directive = Commands.aliases[command].directive;
+        }else if(command in Commands.commands){
+            this.command = Commands.commands[command];
+        } else {
+            print(Hlynux.errorCol("sh: command not found: ") + command);
+            this.invalid = true;
         }
-        this.args = args || [];
+        this.args.concat(args); // For aliases to work properly
         this.directive = directive || UserCommand.Directives.NONE;
         this.STDIN = [];
         this.STDOUT = [];
@@ -200,7 +225,12 @@
         this.readOffset++;
         return s;
     }
-    var Terminal = {
+    Commands.aliases = {
+        "l": new UserCommand("ls",["-la"]),
+        "c": new UserCommand("cd"),
+        "..": new UserCommand("cd",[".."])
+    };
+    Terminal = {
         author: "Glitch",
         version: "0.7",
 
@@ -233,38 +263,6 @@
 
         curPos: function(){
             return $("#txt").prop("selectionStart");
-        },
-
-        Commands: {
-            "ls": Hlynux.ls,
-            "cd": Hlynux.cd,
-            "mkdir": Hlynux.mkdir,
-            "rmdir": Hlynux.rmdir,
-            "pwd": Hlynux.pwd,
-            "date": Hlynux.date,
-            "export": Hlynux.exportVar,
-            "echo": Hlynux.echo,
-            "alias": Hlynux.alias,
-            "cat": Hlynux.cat,
-            "cats": Hlynux.cats,
-            "clear": Hlynux.clear,
-            "chmod": Hlynux.chmod,
-            "chown": Hlynux.chown,
-            "mv": Hlynux.mv,
-            "cp": Hlynux.cp,
-            "rm": Hlynux.rm,
-            "touch": Hlynux.touch,
-            "js": Hlynux.js,
-            "ln": Hlynux.ln,
-            "write": Hlynux.write,
-            "append": Hlynux.append
-        },
-
-
-        aliases: {
-            "l": new UserCommand("ls",["-la"]),
-            "c": new UserCommand("cd"),
-            "..": new UserCommand("cd","..")
         },
 
         CommandHandler: function(com) {
