@@ -44,12 +44,12 @@ function read(promp, fun) {
             var a = $("#txt").val().split(" ");
             b = a[a.length - 1];
             var res = [];
-            var keys = Object.keys(Terminal.Commands.commands);
-            for (c in keys)
-            {
-                if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
-                    res.push(keys[c]);
-            }
+            // var keys = Object.keys(Terminal.Commands.commands);
+            // for (c in keys)
+            // {
+            //     if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
+            //         res.push(keys[c]);
+            // }
             var dirs = Hlynux.path(Hlynux.cwd);
             for (d in dirs)
             {
