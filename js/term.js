@@ -5,6 +5,11 @@ function print(s) {
         for (x in s)
             print(s[x]);
     }
+    else if(s.split("\n").length > 1)
+    {
+        for (x in a)
+            print(a[x]);
+    }
     else
     {
         var div = $("<div class='line' style='width:100%'>");
@@ -287,8 +292,11 @@ function updateCMD(promp){
             if(c[0] == ">>")
             {
                 var wF = function(data){
-                    write(c[1],data)
+                    var a = {STDIN: data}
+                    Hlynux.write(c[1],a);
                 };
+                Terminal.spawn = false;
+                Terminal.interp = true;
                 read("", wF);
                 return false;
             }
