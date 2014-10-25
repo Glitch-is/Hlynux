@@ -289,6 +289,7 @@
                 args = [];
                 while(j < c.length && !(c[j].trim() in UserCommand.DirectiveCodes)){
                     args.push(c[j].trim());
+                    j++;
                 }
                 directive = UserCommand.Directives.NONE;
                 if(j < c.length){ // Must have encountered a directive
@@ -301,9 +302,11 @@
                     commands.push(cmd);
 
                 if(directive == UserCommand.Directives.WRITE){
+                    if(j+1 >= c.length) throw new ArgumentError("Cannot redirect output to nuttn");
                     commands.push(new UserCommand("write",c[j+1]));
                     j++;
                 } else if(directive == UserCommand.Directives.APPEND){
+                    if(j+1 >= c.length) throw new ArgumentError("Cannot redirect output to nuttn");
                     commands.push(new UserCommand("append",c[j+1]));
                     j++;
                 }
