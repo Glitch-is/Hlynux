@@ -1,0 +1,375 @@
+function directory(name, modified, access, owner, group, subdirs)
+{
+    this["~"] = {type: "d", name: name, modified: getDateTime(), access: (typeof access !== 'undefined' ? access : "755"), owner: (typeof owner !== 'undefined' ? owner : Hlynux.envVars["USER"]), group: (typeof group !== 'undefined' ? group : Hlynux.envVars["USER"]), subdirs: (typeof subdirs !== 'undefined' ? subdirs : {})}
+};
+
+function file(name, modified, access, owner, group, content)
+{
+    this["~"] = {type: "f", name: name, modified: getDateTime(), access: (typeof access !== 'undefined' ? access : "755"), owner: (typeof owner !== 'undefined' ? owner : Hlynux.envVars["USER"]), group: (typeof group !== 'undefined' ? group : Hlynux.envVars["USER"]), content: (typeof content !== 'undefined' ? content : "")}
+};
+
+function link(name, modified, access, owner, group, path)
+{
+    this["~"] = {type: "l", name: name, modified: getDateTime(), owner: (typeof owner !== 'undefined' ? owner : Hlynux.envVars["USER"]), group: (typeof group !== 'undefined' ? group : Hlynux.envVars["USER"]), access: (typeof access !== 'undefined' ? access : "755"), path: path}
+};
+
+function getTime() {
+    var now     = new Date();
+    var hour    = now.getHours();
+    var minute  = now.getMinutes();
+    var second  = now.getSeconds();
+
+    if(hour.toString().length == 1) {
+        var hour = '0'+hour;
+    }
+    if(minute.toString().length == 1) {
+        var minute = '0'+minute;
+    }
+    if(second.toString().length == 1) {
+        var second = '0'+second;
+    }
+    var time = hour+':'+minute+':'+second;
+    return time;
+};
+
+function getDate() {
+    var now     = new Date();
+    var year    = now.getFullYear();
+    var month   = now.getMonth()+1;
+    var day     = now.getDate();
+
+    if(month.toString().length == 1) {
+        var month = '0'+month;
+    }
+    if(day.toString().length == 1) {
+        var day = '0'+day;
+    }
+    var date = year+'/'+month+'/'+day;
+    return date;
+};
+
+function getDateTime() {
+    return getDate() + " " + getTime();
+};
+
+var Hlynux = {
+    cwd: "/",
+
+    envVars: {USER: "glitch", HOSTNAME: "hlynux", get PS1() { return Hlynux.getPS1(); }, get HOME() { return Hlynux.getHomeDir(); } },
+
+    getPS1: function(){
+        return this.foreColor(getTime(), "#0000FF") + " " + this.envVars["USER"] + " " + this.foreColor(this.getCurDir(), "aqua") + this.foreColor(" > ", "white");
+    },
+
+    getCurDir: function(){
+        var home = this.getHomeDir();
+        if(this.cwd.slice(0, home.length) == home)
+        {
+            return "~" + this.cwd.slice(0, this.cwd.length - 1).slice(home.length);
+        }
+        return this.cwd;
+    },
+
+    getHomeDir: function(){
+        return "/home/" + this.envVars["USER"];
+    },
+
+    boot: function(){
+        // Initalize Hlynux
+        this.initFS();
+    },
+
+    filesystem: {},
+
+    initFS: function(){
+        this.filesystem["home"] = new directory("home");
+        this.filesystem["bin"] = new directory("bin");
+        this.filesystem["usr"] = new directory("usr");
+        this.filesystem["boot"] = new directory("boot");
+        this.filesystem["dev"] = new directory("dev");
+        this.filesystem["lib"] = new directory("lib");
+        this.filesystem["lost+found"] = new directory("lost+found");
+        this.filesystem["mnt"] = new directory("mnt");
+        this.filesystem["opt"] = new directory("opt");
+        this.filesystem["proc"] = new directory("proc");
+        this.filesystem["root"] = new directory("root");
+        this.filesystem["run"] = new directory("run");
+        this.filesystem["srv"] = new directory("srv");
+        this.filesystem["sys"] = new directory("sys");
+        this.filesystem["tmp"] = new directory("tmp");
+        this.filesystem["var"] = new directory("var");
+        this.filesystem["home"]["glitch"] = new directory("glitch");
+        this.filesystem["home"]["glitch"]["test"] = new file("test");
+        this.filesystem["home"]["glitch"][".history"] = new file(".history");
+        this.filesystem["home"]["glitch"]["Code"] = new directory("Code");
+    },
+
+    addHistory: function(com){
+        this.path("~/.history")["~"]["content"]+=com+"\n";
+    },
+
+    exportVar: function(arg){
+        var v = arg[0];
+        var data = $.trim(arg.join(" ").split("=")[1]);
+        Hlynux.envVars[v] = data;
+    },
+
+    echo: function(arg){
+        var s = arg.join(" ");
+        var ret = [];
+        var arr = s.split(" ");
+        for(w in arr)
+        {
+            if(arr[w][0] == "$")
+            {
+                v = arr[w].substr(1);
+                arr[w] = Hlynux.envVars[v];
+            }
+            ret.push(arr[w]);
+        }
+        print(ret.join(" "));
+    },
+
+    cat: function(arg){
+        var file = arg[0];
+        f = Hlynux.path(file);
+        if(f != undefined && f["~"]["content"] != undefined)
+        {
+            arr = f["~"]["content"].split("\n");
+            for (l in arr)
+            {
+                print(arr[l]);
+            }
+        }
+    },
+
+    aliases: {"l": "ls -la", "c": "cd", "..": "cd .."},
+
+    alias: function(arg){
+        var v = arg[0];
+        var s = $.trim(arg.join(" ").split("=")[1]);
+        Hlynux.aliases[v] = s;
+    },
+
+    date: function(){
+        print(getDateTime());
+    },
+
+    path: function(p, abs){
+        p = p.replace("~", this.envVars["HOME"]);
+        p = p.replace("..", this.upDirPath(this.cwd.substr(0, this.cwd.length - 1)));
+        if(p == "..")
+        {
+            p += "/";
+        }
+        if(p == "/")
+        {
+            if(abs != undefined)
+                return p;
+            return this.filesystem;
+        }
+        else if(p[0] == "/")
+        {
+            //absolute
+            p = p + (p[p.length-1] == "/" ? "" : "/");
+            var arr = p.split("/");
+            arr = arr.slice(1, arr.length -1);
+
+            var ret = this.filesystem[arr[0]];
+            p = "/" + arr[0] + "/";
+            arr = arr.slice(1);
+            for (d in arr)
+            {
+                var a = ret[arr[d]];
+                ret = a;
+                if(ret == undefined)
+                {
+                    p = undefined;
+                    break;
+                }
+                p += a["~"]["name"] + "/"
+            }
+            if(abs != undefined)
+                return (ret == undefined ? undefined : p);
+            return ret;
+        }
+        else
+        {
+            //relative
+            return this.path(this.cwd + (this.cwd[this.cwd.length - 1] == "/" ? "" : "/") + p + (p[p.length-1] == "/" ? "" : "/"), abs);
+        }
+    },
+
+    errorCol: function(s){
+        return this.foreColor(s, "#FF0000");
+    },
+
+    foreColor: function(s, c){
+        return "<span style='color: "+c+";'>" + s + "</span>";
+    },
+
+    backColor: function(s, c){
+        return "<span style='background: "+c+";'>" + s + "</span>";
+    },
+
+    bold: function(s){
+        return "<b>" + s + "</b>";
+    },
+
+    getFileCol: function(t){
+        switch (t)
+        {
+            case "d":
+                return "#5959FF";
+            case "l":
+                return "aqua";
+            default:
+                return "#00FF00";
+        }
+    },
+
+    upDirPath: function (p) {
+        var arr = p.split("/");
+        if(arr.length > 1)
+        {
+            arr = arr.slice(0, arr.length - 1).join("/");
+            if(arr.length == 0 || arr[0] == "")
+                arr = "/";
+        }
+        else
+            arr = "/"
+        return arr;
+    },
+
+    mkdir: function(arg){
+        var p = arg[0];
+        if(Hlynux.path(p) == undefined)
+        {
+            if(p[0] != "/" && p[0] != "~" && p[0] != ".")
+                p = Hlynux.cwd + p;
+            var arr = p.split("/");
+            var dir = arr[arr.length - 1];
+            Hlynux.path(Hlynux.upDirPath(p))[dir] = new directory(dir);
+        }
+        else
+            print(Hlynux.errorCol("mkdir: cannot create directory '"+p+"': File exists"));
+    },
+
+    rmdir: function(arg){
+        var p = arg[0]
+        if(Object.keys(Hlynux.path(p)).length == 1)
+        {
+            if(p[0] != "/" && p[0] != "~" && p[0] != ".")
+                p = Hlynux.cwd + p;
+            var arr = p.split("/");
+            var dir = arr[arr.length - 1];
+            delete Hlynux.path(Hlynux.upDirPath(p))[dir];
+        }
+        else
+            print(Hlynux.errorCol("rmdir: failed to remove '"+p+"': Directory not empty"))
+    },
+
+    // mv: function(o, d){
+    //     if(d[0] != "/" && d[0] != "~" && d[0] != ".")
+    //         d = Hlynux.cwd + d;
+    //     if(o[0] != "/" && o[0] != "~" && o[0] != ".")
+    //         o = Hlynux.cwd + o;
+    //     Hlynux.path(Hlynux.upDirPath(d))
+    // },
+
+    cd: function(arg){
+        var dir = arg[0];
+        if(dir == undefined || dir == "")
+        {
+            Hlynux.cwd = Hlynux.envVars["HOME"];
+            return;
+        }
+        var d = Hlynux.path(dir, true);
+        if(d != undefined)
+            Hlynux.cwd = d;
+        else
+            print(Hlynux.errorCol("cd: no such file or directory: ") + dir);
+    },
+    ls: function(arg){
+        var opt;
+        var dir = "";
+        if(arg[0] != undefined && arg[0][0] == "-")
+        {
+            opt = arg[0].slice(1);
+            dir = arg[1];
+        }
+        else
+        {
+            dir = arg[0];
+        }
+        if(dir == undefined)
+        {
+            dir = Hlynux.cwd;
+            console.log(Hlynux.cwd);
+        }
+        var ret = "";
+        var sub = Hlynux.path(dir);
+        for (x in sub)
+        {
+            if(x != "~" && ($.inArray("a", opt) >= 0) ? true : x[0] != ".")
+                ret += (($.inArray("l", opt) >= 0) ? Hlynux.fileInfo(sub[x]) : "") + Hlynux.foreColor(Hlynux.bold(x), Hlynux.getFileCol(sub[x]["~"]["type"])) + (($.inArray("l", opt) >= 0) ? "\n" : "&nbsp;&nbsp;");
+        }
+        print(ret);
+    },
+
+    fileInfo: function(f) {
+        return f["~"]["type"] + Hlynux.getAccessString(f["~"]["access"]) +" "+ f["~"]["owner"] + " " + f["~"]["group"] + " " + f["~"]["modified"] + " "
+    },
+
+    getAccessString: function(i){
+        var ret = "";
+        for(x in i)
+            ret += Hlynux.getAccessNumber(i[x]);
+    },
+
+    getAccessNumber: function(i){
+        switch(i)
+        {
+            case "7":
+                return "rwx"
+            case "6":
+                return "rw-"
+            case "5":
+                return "r-x"
+            case "4":
+                return "r--"
+            case "3":
+                return "-wx"
+            case "2":
+                return "-w-"
+            case "1":
+                return "--x"
+            case "0":
+                return "---"
+        }
+    },
+
+    chmod: function(arg) {
+        var mode = arg[0];
+        var file = this.path(arg[1]);
+        file["~"]["access"] = mode;
+    },
+
+    chown: function(arg) {
+        var owner  = arg[0];
+        var file = this.path(arg[1]);
+        file["~"]["owner"] = owner;
+    },
+
+    clear: function(){
+        $("#out").html("");
+    },
+
+    pwd: function(){
+        print(Hlynux.cwd);
+    }
+};
+
+$(function() {
+    Hlynux.boot();
+});
