@@ -426,7 +426,6 @@ var Hlynux = {
 
     js: function(arg, cmd){
         // var arg = getIN("js")[0];
-        console.log(arg);
         if(arg[0] == undefined)
         {
             var jsInterp = function(data){

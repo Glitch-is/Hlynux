@@ -267,7 +267,6 @@ function updateCMD(promp){
         },
 
         CommandHandler: function(com) {
-            console.log(com);
             if(com == "")
                 return;
             Hlynux.addHistory(com);
@@ -311,7 +310,6 @@ function updateCMD(promp){
                 }
                 i += j + 1;
             }
-            console.log(commands);
             return commands;
         },
 
