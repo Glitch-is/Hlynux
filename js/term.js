@@ -284,6 +284,14 @@ function updateCMD(promp){
 
         CommandParser: function(com){
             var c = com.split(" "), commands = [];
+            if(c[0] == ">>")
+            {
+                var wF = function(data){
+                    write(c[1],data)
+                };
+                read("", wF);
+                return false;
+            }
             if (c.length < 1) throw new ArgumentError("fail");
             var command, args, directive = UserCommand.Directives.NONE;
             var i = 0;

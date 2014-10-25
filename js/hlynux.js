@@ -195,7 +195,7 @@ var Hlynux = {
 
     append: function(arg, cmd){
         var file = Hlynux.path($.trim(arg));
-        file["~"]["content"] += cmd.STDIN;
+        file["~"]["content"] += cmd.STDIN + "\n";
         updateFS();
     },
 
