@@ -320,7 +320,7 @@
             for(var i = 0;i < commands.length;i++){
                 cmd = commands[i];
                 cmd.execute();
-                
+
                 switch(cmd.directive){
                     case UserCommand.Directives.NONE:
                         cmd.output();
