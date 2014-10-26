@@ -103,7 +103,7 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        if(FS == "" || FS == undefined)
+        if(FS == "" || typeof FS === undefined)
             this.initFS();
         else
             this.filesystem = FS;
@@ -180,7 +180,7 @@ var Hlynux = {
         if(arg.length >= 1){
             var file = arg[0];
             f = Hlynux.path(file);
-            if(f != undefined && f["~"]["content"] != undefined)
+            if(typeof f !== undefined && typeof f["~"]["content"] !== undefined)
             {
                 arr = f["~"]["content"];//.split("\n");
                 // getOUT("cat").push(arr);
@@ -195,7 +195,7 @@ var Hlynux = {
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
         console.log(p, name);
-        if(Hlynux.path(p) == undefined)
+        if(typeof Hlynux.path(p) === undefined)
         {
             var dir = Hlynux.path(Hlynux.upDirPath(p));
             dir[name] = new file(name);
@@ -236,7 +236,7 @@ var Hlynux = {
             }
             if(p == "/")
             {
-                if(abs != undefined)
+                if(typeof abs !== undefined)
                     return p;
                 return Hlynux.filesystem;
             }
@@ -254,15 +254,15 @@ var Hlynux = {
                 {
                     var a = ret[arr[d]];
                     ret = a;
-                    if(ret == undefined)
+                    if(typeof ret === undefined)
                     {
                         p = undefined;
                         break;
                     }
                     p += a["~"]["name"] + "/"
                 }
-                if(abs != undefined)
-                    return (ret == undefined ? undefined : p);
+                if(typeof abs !== undefined)
+                    return (typeof ret === undefined ? undefined : p);
                 return ret;
             }
             else
@@ -313,7 +313,7 @@ var Hlynux = {
         {
             p = Hlynux.path(p, true);
         }
-        if(p == undefined)
+        if(typeof p === undefined)
         {
             p = Hlynux.cwd + "/" + a;
         }
@@ -367,7 +367,7 @@ var Hlynux = {
     mkdir: function(arg){
         // var arg = getIN("mkdir")[0];
         var p = arg[0];
-        if(Hlynux.path(p) == undefined)
+        if(typeof Hlynux.path(p) === undefined)
         {
             var arr = p.split("/");
             var dir = arr[arr.length - 1];
@@ -426,7 +426,7 @@ var Hlynux = {
         // var arg = getIN("touch")[0];
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
-        if(Hlynux.path(p) == undefined)
+        if(typeof Hlynux.path(p) === undefined)
         {
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
@@ -441,7 +441,7 @@ var Hlynux = {
 
     js: function(arg, cmd){
         // var arg = getIN("js")[0];
-        if(arg[0] == undefined)
+        if(typeof arg[0] === undefined)
         {
             var jsInterp = function(data){
                 try
@@ -483,7 +483,7 @@ var Hlynux = {
     cd: function(arg, cmd){
         // var arg = getIN("cd")[0];
         var dir = arg[0];
-        if(dir == undefined || dir == "")
+        if(typeofdir === undefined || dir == "")
         {
             Hlynux.cwd = Hlynux.envVars["HOME"];
             return;
@@ -494,7 +494,7 @@ var Hlynux = {
             t = Hlynux.path(dir)["~"]["type"];
         else
             t = "d";
-        if(d != undefined)
+        if(typeof d !== undefined)
         {
             if(t == "l")
                 Hlynux.cwd = Hlynux.path(dir)["~"]["path"];
@@ -512,14 +512,14 @@ var Hlynux = {
         // var arg = getIN("ls")[0];
         var opt;
         var dir = "";
-        if(arg[0] != undefined && arg[0][0] == "-")
+        if(typeof arg[0] !== undefined && arg[0][0] == "-")
         {
             opt = arg[0].slice(1);
             dir = arg[1];
         }
         else
             dir = arg[0];
-        if(dir == undefined)
+        if(typeof dir === undefined)
             dir = Hlynux.cwd;
         if(dir != "/" && Hlynux.path(dir)["~"]["type"] == "l")
             dir = Hlynux.path(dir)["~"]["path"];
@@ -627,7 +627,7 @@ var Hlynux = {
             }
         });
         var file = Hlynux.path(arg[0]);
-        if(file != undefined)
+        if(typeof file !== undefined)
         {
             $("#extra").show();
             var a = file["~"]["content"].split("\n");
@@ -638,7 +638,7 @@ var Hlynux = {
             $("#extra").append("<div class='line'>"+Hlynux.backColor(Hlynux.foreColor("(END) 'q' to quit", "black"), "#00FF00")+"</div>");
             window.scrollTo(0, 0);
         }
-        else if(arg[0] != undefined)
+        else if(typeof arg[0] !== undefined)
         {
             $("#extra").show();
             var a = arg[0].split("\n");
