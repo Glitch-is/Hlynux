@@ -270,6 +270,7 @@ var Hlynux = {
         try {
             var ret = Hlynux.filesystem;
             absPath.forEach(function(item){
+                if(item === "") return;
                 if(typeof ret[item] === "undefined")
                     throw new TypeError("Invalid Path");
                 ret = ret[item];
