@@ -256,7 +256,7 @@ var Hlynux = {
                     ret = a;
                     if(typeof ret === "undefined")
                     {
-                        p = undefined;
+                        p = void 0;
                         break;
                     }
                     p += a["~"]["name"] + "/"
