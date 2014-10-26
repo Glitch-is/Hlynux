@@ -7,6 +7,7 @@ function print(s) {
     }
     else if(s.split("\n").length > 1)
     {
+        var a = s.split("\n");
         for (x in a)
             print(a[x]);
     }
@@ -142,6 +143,7 @@ function read(promp, fun) {
             return;
         }
         updateCMD(msg);
+        bottom();
     });
 };
 function updateCMD(promp){
@@ -182,6 +184,8 @@ function updateCMD(promp){
             "touch": Hlynux.touch,
             "js": Hlynux.js,
             "ln": Hlynux.ln,
+            "less": Hlynux.less,
+            "man": Hlynux.man,
             "write": Hlynux.write,
             "append": Hlynux.append
         }
@@ -296,6 +300,7 @@ function updateCMD(promp){
                     Hlynux.write(c[1],a);
                 };
                 Terminal.spawn = false;
+                Terminal.update = true;
                 Terminal.interp = true;
                 read("", wF);
                 return false;

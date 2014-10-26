@@ -103,10 +103,11 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        if(FS == "" || FS == undefined)
+        // if(FS == "" || FS == undefined)
             this.initFS();
-        else
-            this.filesystem = FS;
+        // else
+        //     this.filesystem = FS;
+        manual();
     },
 
     filesystem: {},
@@ -119,8 +120,10 @@ var Hlynux = {
         this.filesystem["home"]["glitch"]["Code"] = new directory("Code");
         this.filesystem["bin"] = new link("bin", "/usr/bin/");
         this.filesystem["usr"] = new directory("usr");
+        this.filesystem["usr"]["share"] = new directory("share");
+        this.filesystem["usr"]["share"]["man"] = new directory("man");
         this.filesystem["usr"]["bin"] = new directory("usr");
-        this.filesystem["usr"]["bin"]["test.js"] = new file("test.js", "print('This is a JavaScript test'); for(var i = 1; i <= 10; i++){print(i);};");
+        this.filesystem["usr"]["bin"]["test.js"] = new file("test.js", "print('This is a JavaScript test');\nfor(var i = 1; i <= 10; i++)\n{\nprint(i);\n};");
         this.filesystem["usr"]["lib"] = new directory("lib");
         this.filesystem["boot"] = new directory("boot");
         this.filesystem["dev"] = new directory("dev");
@@ -589,14 +592,58 @@ var Hlynux = {
         $("#out").html("");
     },
 
-    less: function(){
+    man: function(arg, cmd){
+        com = arg[0];
+        Hlynux.less(["/usr/share/man/" + com]);
+    },
+
+    less: function(arg, cmd){
+        $("#txt").off("input keydown keyup");
         $("#out").hide();
         $("#cmd").hide();
+        $("body").append("<div id='extra'></div>");
+        $("body").on("keydown", function(e){
+            if((e.which == 67 && e.ctrlKey) || e.which == 81)
+            {
+                e.preventDefault();
+                $("body").off("keydown");
+                $("#extra").html("");
+                $("#extra").hide();
+                $("#out").show();
+                $("#cmd").show();
+                read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
+                bottom();
+            }
+        });
+        console.log(arg[0]);
+        var file = Hlynux.path(arg[0]);
+        if(file != undefined)
+        {
+            $("#extra").show();
+            var a = file["~"]["content"].split("\n");
+            for (x in a)
+            {
+                $("#extra").append("<div class='line'>"+a[x]+"</div>");
+            }
+            $("#extra").append("<div class='line'>"+Hlynux.backColor(Hlynux.foreColor("(END) 'q' to quit", "black"), "#00FF00")+"</div>");
+            $(window).scrollTo(0);
+        }
     },
 
     pwd: function(args, cmd){
         // getOUT("pwd").push(Hlynux.cwd);
         cmd.print(Hlynux.cwd);
+    }
+};
+
+var manual = function(){
+    var files = {
+        man: "man is used for reading the manual of commands\nThe end"
+    };
+
+    for (m in files)
+    {
+        Hlynux.filesystem["usr"]["share"]["man"][m] = new file(m, files[m]);
     }
 };
 
