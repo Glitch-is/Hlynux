@@ -265,11 +265,12 @@ var Hlynux = {
         var absPath = Hlynux.expandRelative(path.split("/"), cwd).split("/");
         absPath = absPath.slice(1, absPath.length);
 
-        // console.log(absPath);
+        console.log(absPath);
 
         try {
             var ret = Hlynux.filesystem;
             absPath.forEach(function(item){
+                console.log(item);
                 if(item === "") return;
                 if(typeof ret[item] === "undefined")
                     throw new TypeError("Invalid Path");
@@ -431,7 +432,7 @@ var Hlynux = {
         // var arg = getIN("touch")[0];
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
-        if(Hlynux.path(p) === false)
+        if(Hlynux.path(p, false) === false)
         {
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
@@ -474,6 +475,7 @@ var Hlynux = {
                 }
                 catch(err)
                 {
+                    console.log(err.message);
                     // getOUT("js").push(Hlynux.errorCol(err.message));
                     cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
                 }
