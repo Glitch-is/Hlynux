@@ -617,7 +617,6 @@ var Hlynux = {
                 read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
             }
         });
-        console.log(arg[0]);
         var file = Hlynux.path(arg[0]);
         if(file != undefined)
         {
