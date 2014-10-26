@@ -236,7 +236,7 @@ var Hlynux = {
             }
             if(p == "/")
             {
-                if(typeof abs !== undefined)
+                if(typeof abs !== "undefined")
                     return p;
                 return Hlynux.filesystem;
             }
@@ -254,15 +254,15 @@ var Hlynux = {
                 {
                     var a = ret[arr[d]];
                     ret = a;
-                    if(typeof ret === undefined)
+                    if(typeof ret === "undefined")
                     {
                         p = undefined;
                         break;
                     }
                     p += a["~"]["name"] + "/"
                 }
-                if(typeof abs !== undefined)
-                    return (typeof ret === undefined ? undefined : p);
+                if(typeof abs !== "undefined")
+                    return (typeof ret === "undefined" ? void 0 : p);
                 return ret;
             }
             else
