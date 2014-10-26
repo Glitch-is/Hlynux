@@ -315,10 +315,7 @@ var Hlynux = {
 
     upDirPath: function (p) {
         var a = p;
-        // if(p.slice(0, 2) != "..")
-        // {
-        //     p = Hlynux.path(p, true);
-        // }
+        p = Hlynux.expandPath(p);
         if(typeof p === "undefined")
         {
             p = Hlynux.cwd + "/" + a;
@@ -434,6 +431,7 @@ var Hlynux = {
         var name = p.split("/").slice(-1)[0];
         if(Hlynux.path(p, false) === false)
         {
+            console.log(Hlynux.upDirPath(p));
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
         }
