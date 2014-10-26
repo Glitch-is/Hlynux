@@ -74,12 +74,14 @@ function read(promp, fun) {
             }
         }
         else if(e.which == 38) { // Up
+            e.preventDefault();
             var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
             if(Terminal.histID < a.length)
                 Terminal.histID++;
             $("#txt").val(a[(a.length - 1) - Terminal.histID]);
         }
         else if(e.which == 40) { // Down
+            e.preventDefault();
             var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
             if(Terminal.histID > 0)
             {
@@ -96,6 +98,8 @@ function read(promp, fun) {
             Terminal.histID = 0;
         }
         updateCMD(msg);
+        if(!Terminal.Top)
+            bottom();
     });
     $("#txt").on("input keyup", function(e) {
         if(e.which == 9) { // Tab
@@ -112,7 +116,8 @@ function read(promp, fun) {
             fun($("#txt").val());
             updatePrump();
             $("#txt").val("");
-            bottom();
+            if(!Terminal.Top)
+                bottom();
             if(Terminal.update)
             {
                 Terminal.update = false;
@@ -143,7 +148,8 @@ function read(promp, fun) {
             return;
         }
         updateCMD(msg);
-        bottom();
+        if(!Terminal.Top)
+            bottom();
     });
 };
 function updateCMD(promp){
@@ -269,6 +275,7 @@ function updateCMD(promp){
         spawn: true,
         update: false,
         interp: false,
+        Top: false,
 
         bindKeys: function() {
             $(window).on("click focus", function() {

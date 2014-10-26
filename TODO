@@ -1,15 +1,11 @@
 Terminal:
     Fix Multiple Spaces not displaying
-    Offline Storage
 
 Hlynux:
     rm
     rmdir
     Add users
     sudo
-    Output redirecting (>, >> and |)
-    js
     figlet
     setfont - Why not?
-    less
-    man
+    $PATH

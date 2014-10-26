@@ -103,10 +103,10 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        // if(FS == "" || FS == undefined)
+        if(FS == "" || FS == undefined)
             this.initFS();
-        // else
-        //     this.filesystem = FS;
+        else
+            this.filesystem = FS;
         manual();
     },
 
@@ -143,6 +143,7 @@ var Hlynux = {
 
     addHistory: function(com){
         this.path("~/.history")["~"]["content"]+=com+"\n";
+        updateFS();
     },
 
     exportVar: function(arg){
@@ -602,6 +603,7 @@ var Hlynux = {
         $("#out").hide();
         $("#cmd").hide();
         $("body").append("<div id='extra'></div>");
+        Terminal.Top = true
         $("body").on("keydown", function(e){
             if((e.which == 67 && e.ctrlKey) || e.which == 81)
             {
@@ -611,8 +613,8 @@ var Hlynux = {
                 $("#extra").hide();
                 $("#out").show();
                 $("#cmd").show();
+                Terminal.Top = false;
                 read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
-                bottom();
             }
         });
         console.log(arg[0]);
@@ -621,6 +623,17 @@ var Hlynux = {
         {
             $("#extra").show();
             var a = file["~"]["content"].split("\n");
+            for (x in a)
+            {
+                $("#extra").append("<div class='line'>"+a[x]+"</div>");
+            }
+            $("#extra").append("<div class='line'>"+Hlynux.backColor(Hlynux.foreColor("(END) 'q' to quit", "black"), "#00FF00")+"</div>");
+            window.scrollTo(0, 0);
+        }
+        else if(arg[0] != undefined)
+        {
+            $("#extra").show();
+            var a = arg[0].split("\n");
             for (x in a)
             {
                 $("#extra").append("<div class='line'>"+a[x]+"</div>");
@@ -638,12 +651,178 @@ var Hlynux = {
 
 var manual = function(){
     var files = {
-        man: "man is used for reading the manual of commands\nThe end"
+        example:    "<r><b>NAME</b></r>\n" +
+                    "-->example - this is an example manual entry\n" +
+                    "-->\n" +
+                    "<r><b>DESCRIPTION</b></r>\n" +
+                    "-->Use this as a guide line to make manul entries for other utilities or programs\n" +
+                    "-->\n" +
+                    "<r><b>EXAMPLE</b></r>\n" +
+                    "-->Give examples on the programs usage\n" +
+                    "-->\n" +
+                    "<r><b>ENVIRONMENT</b></r>\n" +
+                    "-->Are there any environment variables that the program uses?\n" +
+                    "-->\n" +
+                    "<r><b>FILES</b></r>\n" +
+                    "-->What files does that program use and why?\n" +
+                    "-->\n" +
+                    "<r><b>SEE ALSO</b></r>\n" +
+                    "--><r><b>hlynux</b></r>\n",
+
+        man:    "<r><b>NAME</b></r>\n" +
+                "-->man - an interface to the on-line reference manuals\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b</r>\n" +
+                "--><r>man</r> is the system's manual pager. Each page argument given to man is normally the name of a program, utility or function. The manual page associated with each of these arguments is then found and displayed\n" +
+                "-->\n" +
+                "-->A manual page consists of several sections.\n" +
+                "--><r><b>NAME</b></r>, <r><b>SYNOPSIS</b></r>, <r><b>DESCRIPTION</b></r>, <r><b>OPTIONS</b></r>, <r><b>RETURN VALUE</b></r>, <r><b>ERRORS</b></r>, <r><b>ENVIRONMENT</b></r>, <r><b>FILES</b></r>, <r><b>NOTES</b></r>, <r><b>BUGS</b></r>, <r><b>EXAMPLE</b></r>, <r><b>SEE ALSO</b></r>\n" +
+                "-->\n" +
+                "--><r>red text</r>-->type exactly as shown.\n" +
+                "--><b>bold text</b>-->replace with appropriate argument.\n" +
+                "-->[<r>-abc</r>]-->any or all argument within [  ] are optional.\n" +
+                "--><r>-a</r>|<r>-b</r>-->options delimited by | cannot be used together.\n" +
+                "-->\n" +
+                "<r><b>EXAMPLES</b</r>\n" +
+                "--><r>man</r> <b>ls</b>\n" +
+                "-->-->Display the manual page for the <b>item</b> (program) <b>ls</b>\n" +
+                "-->\n" +
+                "<r><b>ENVIRONMENT</b</r>\n" +
+                "--><r><b>MANPATH</b></r>\n" +
+                "-->-->If $<r><b>MANPATH</b></r> is set, its value is used as the path to search for manual pages.\n" +
+                "-->\n" +
+                "<r><b>FILES</b</r>\n" +
+                "--><b>/usr/share/man</b>\n" +
+                "-->-->A global manual page hierarchy.\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b</r>\n" +
+                "--><r><b>hlynux</b></r>\n",
+
+        ls:    "<r><b>NAME</b></r>\n" +
+                "-->ls - list directory contents\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>ls</b></r> [<b>OPTION</b>]... [<b>FILE</b>]\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->List information about the FILEs (the current directory by default).\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r>ls</r> <b>dir</b>\n" +
+                "-->-->Lists all directories within <b>dir</b>\n" +
+                "-->\n" +
+                "--><r>ls</r> <r>-l</r>\n" +
+                "-->-->Lists all directories within the current directory in a list and gives additional details\n" +
+                "-->\n" +
+                "--><r>ls</r> <r>-a</r>\n" +
+                "-->-->Lists all directories within the current directory including hidden files (files starting with dot)\n" +
+                "-->\n" +
+                "<r><b>OPTIONS</b></r>\n" +
+                "--><r><b>-a</b></r>\n" +
+                "-->-->Lists all files including hidden files\n" +
+                "-->\n" +
+                "--><r><b>-l</b></r>\n" +
+                "-->-->Displays all files in a list and displays additional file information\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>cd</b></r>\n",
+
+        cd:    "<r><b>NAME</b></r>\n" +
+                "-->cd - change the working directory\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>cd</b></r> <r>[</r><b>directory</b><r>]</r>\n" +
+                "-->\n" +
+                "--><r><b>cd</b></r> -\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Changes the current directory to the given argument, if argument is empty it defaults to the users's home directory specified in the $<b>HOME</b> environment variable.\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>cd</b></r> <b>directory</b>\n" +
+                "-->-->Changes the working directory to <b>directory</b> specified in the command\n" +
+                "-->\n" +
+                "<r><b>ENVIRONMENT</b></r>\n" +
+                "--><b>HOME</b>-->The name of the directory, used when no directory operand is specified.\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>ls</b></r>\n",
+
+        pwd:    "<r><b>NAME</b></r>\n" +
+                "-->pwd - print the working directory\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>pwd</b></r>\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Print out the full filename of the current working directory.\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>cd</b></r>\n",
+
+        mkdir:  "<r><b>NAME</b></r>\n" +
+                "-->mkdir - make directories\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>mkdir</b></r> <b>DIRECTORY</b>\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Create the DIRECTORY, if it does not already exist.\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r>mkdir</r> <b>dir</b>\n" +
+                "-->-->Creates the directory <b>dir</b> in the current working directory\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>cd</b></r>, <r><b>pwd</b></r>\n",
+
+        date:   "<r><b>NAME</b></r>\n" +
+                "-->date - print the system date and time\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>date</b></r>\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Display the current system date and time\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>\n",
+
+        export: "<r><b>NAME</b></r>\n" +
+                "--> export - set the export attribute for variables\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>export</b></r> name = <r>[</r><b>word</b><r>]</r>...\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->The shell shall give the <b>export</b> attribute to the variables corresponding to the specified <b>names</b>, which shall cause them to be in the environment of subsequently executed commands.\n" +
+                "-->If the name  of  a  variable  is  followed  by = <b>word</b>, then the value of that variable shall be set to <b>word</b>.\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>\n",
+
+        echo:  "<r><b>NAME</b></r>\n" +
+                "-->echo - display a line of text\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>echo</b></r> [<b>STRING</b>]...\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Echo the STRING(s) to standard output\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r>echo</r> <b>Hello World</b>\n" +
+                "-->-->Displays the string '<b>Hello World</b>'\n" +
+                "-->\n" +
+                "--><r>echo</r> <b>Hello, $USER</b>\n" +
+                "-->-->Displays the string '<b>Hello, glitch</b>'\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>export</b></r>\n",
     };
 
     for (m in files)
     {
-        Hlynux.filesystem["usr"]["share"]["man"][m] = new file(m, files[m]);
+        Hlynux.filesystem["usr"]["share"]["man"][m] = new file(m, files[m].replace(/<r>/g, "<span style='color: #FF5959;'>").replace(/<\/r>/g, "</span>").replace(/-->/g, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
     }
 };
 
