@@ -190,15 +190,24 @@ var Hlynux = {
             cmd.print(cmd.STDIN.join("\n"));
         }
     },
-
-    write: function(arg, cmd){
-        var file = Hlynux.path($.trim(arg));
-        file["~"]["content"] += cmd.STDIN;
-        updateFS();
+    write: function(arg){
+        // var arg = getIN("touch")[0];
+        var p = arg[0];
+        var name = p.split("/").slice(-1)[0];
+        console.log(p, name);
+        if(Hlynux.path(p) == undefined)
+        {
+            var dir = Hlynux.path(Hlynux.upDirPath(p));
+            dir[name] = new file(name);
+        }
+        var f = Hlynux.path(p);
+        f["~"]["modified"] = getDateTime();
+        f["~"]["content"] = cmd.STDIN.join("\n") + "\n";
+        updateFS()
     },
 
     append: function(arg, cmd){
-        var file = Hlynux.path($.trim(arg));
+        var file = Hlynux.path($.trim(arg[0]));
         file["~"]["content"] += cmd.STDIN + "\n";
         updateFS();
     },
