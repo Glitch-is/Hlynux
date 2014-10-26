@@ -149,8 +149,8 @@ var Hlynux = {
         Hlynux.envVars[v] = data;
     },
 
-    cats: function(){
-        print("<img src='http://sjoerd.luon.net/posts/2012/07/hacker-cat.jpg'/>");
+    cats: function(arg, cmd){
+        cmd.print("<img src='http://sjoerd.luon.net/posts/2012/07/hacker-cat.jpg'/>");
     },
 
     echo: function(arg){
@@ -188,18 +188,20 @@ var Hlynux = {
     },
 
     write: function(arg, cmd){
-        file = Hlynux.path(arg);
-        file["~"]["content"] = cmd;
+        var file = Hlynux.path($.trim(arg));
+        file["~"]["content"] += cmd.STDIN;
+        updateFS();
     },
 
     append: function(arg, cmd){
-        file = Hlynux.path(arg);
-        file["~"]["content"] += cmd;
+        var file = Hlynux.path($.trim(arg));
+        file["~"]["content"] += cmd.STDIN + "\n";
+        updateFS();
     },
 
     alias: function(arg, cmd){
         // var arg = getIN("alias")[0];
-        // var v = arg[0];
+        var v = arg[0];
         // var s = $.trim(arg.join(" ").split("=")[1]);
         Terminal.aliases[v] = new UserCommand(arg[1],arg.slice(2), cmd.directive);
     },
@@ -435,7 +437,7 @@ var Hlynux = {
                 }
                 catch(err)
                 {
-                    print(Hlynux.errorCol(err));
+                    cmd.print(Hlynux.errorCol(err));
                 }
             }
             Terminal.spawn = false;
@@ -462,7 +464,7 @@ var Hlynux = {
                 cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
                 // getOUT("js").push(Hlynux.errorCol("js: Not a file: ") + arg[0]);
         }
-        updateFS()
+        updateFS();
     },
 
     cd: function(arg, cmd){
@@ -585,6 +587,11 @@ var Hlynux = {
 
     clear: function(){
         $("#out").html("");
+    },
+
+    less: function(){
+        $("#out").hide();
+        $("#cmd").hide();
     },
 
     pwd: function(args, cmd){

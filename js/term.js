@@ -1,171 +1,208 @@
-(function(){
-    function print(s) {
-        if(typeof s == "object")
+var Terminal, UserCommand, Commands;
+function print(s) {
+    if(typeof s == "object")
+    {
+        for (x in s)
+            print(s[x]);
+    }
+    else if(s.split("\n").length > 1)
+    {
+        for (x in a)
+            print(a[x]);
+    }
+    else
+    {
+        var div = $("<div class='line' style='width:100%'>");
+        div.append(s)
+        $("#out").append(div);
+    }
+}
+
+function bottom(){
+    $("html, body").animate({ scrollTop: $(document).height() }, 1);
+};
+
+function read(promp, fun) {
+    var msg;
+    var updatePrump = function(){
+        if(typeof promp == "function")
+            msg = promp();
+        else
+            msg = promp;
+    };
+    updatePrump();
+
+    $("#txt").off("input keydown keyup");
+    $("#txt").val("");
+    updateCMD(msg);
+    $("#txt").on("keydown", function(e){
+        if(e.which == 9) // Tab
         {
-            for (x in s)
-                print(s[x]);
+            e.preventDefault();
+            if($("#txt").val() == "")
+                return;
+            var a = $("#txt").val().split(" ");
+            b = a[a.length - 1];
+            var res = [];
+            // var keys = Object.keys(Terminal.Commands.commands);
+            // for (c in keys)
+            // {
+            //     if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
+            //         res.push(keys[c]);
+            // }
+            var dirs = Hlynux.path(Hlynux.cwd);
+            for (d in dirs)
+            {
+                if(d != "~" && d.length >= b.length)
+                {
+                    if(d.slice(0, b.length) == b)
+                        res.push(d);
+                }
+            }
+            if(res.length == 1)
+            {
+                a[a.length - 1]  = res[0];
+                $("#txt").val(a.join(" "));
+            }
+            else if(res.length > 1)
+            {
+                var div = $("<div class='line' style='width:100%'>" + Hlynux.envVars["PS1"]());
+                div.append(document.createTextNode($("#txt").val()));
+                $("#out").append(div);
+                print(res.join("&nbsp;&nbsp;"));
+            }
         }
+        else if(e.which == 38) { // Up
+            var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
+            if(Terminal.histID < a.length)
+                Terminal.histID++;
+            $("#txt").val(a[(a.length - 1) - Terminal.histID]);
+        }
+        else if(e.which == 40) { // Down
+            var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
+            if(Terminal.histID > 0)
+            {
+                Terminal.histID--;
+                $("#txt").val(a[(a.length - 1) - Terminal.histID]);
+            }
+            else
+                $("#txt").val("");
+        }
+        else if(e.which == 13) // Enter
+            e.preventDefault();
         else
         {
-            var div = $("<div class='line' style='width:100%'>");
-            div.append(s)
+            Terminal.histID = 0;
+        }
+        updateCMD(msg);
+    });
+    $("#txt").on("input keyup", function(e) {
+        if(e.which == 9) { // Tab
+            e.preventDefault();
+            return false;
+        }
+        else if(e.which == 13) { // Enter
+            e.preventDefault();
+            $("#txt").val($("#txt").val().split("\n")[0]);
+            var a = document.createTextNode($("#txt").val());
+            var div = $("<div class='line' style='width:100%'><span>" + msg + "</span>");
+            div.append(a)
             $("#out").append(div);
+            fun($("#txt").val());
+            updatePrump();
+            $("#txt").val("");
+            bottom();
+            if(Terminal.update)
+            {
+                Terminal.update = false;
+                return;
+            }
+            if(Terminal.spawn)
+            {
+                Terminal.spawn = true;
+                updateCMD(msg);
+                $("#txt").off("input keydown keyup");
+                $("#cmd").html("");
+                read(promp, fun);
+                return;
+            }
+            if(Terminal.interp)
+                updateCMD(msg);
+            return;
+        }
+        else if(e.which == 38) { // Up
+            e.preventDefault();
+        }
+        else if(e.which == 40) { // Down
+            e.preventDefault();
+        }
+        else if(e.which == 67 && e.ctrlKey) // Ctrl + C
+        {
+            read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
+            return;
+        }
+        updateCMD(msg);
+    });
+};
+function updateCMD(promp){
+    var b = $("#txt").val();
+    var beg = document.createTextNode(b.slice(0, Terminal.curPos()));
+    var end = document.createTextNode(b.slice(Terminal.curPos()+1, b.length));
+    var curs = "<span class='cursor'>" + (Terminal.curPos() < b.length ? b[Terminal.curPos()] : "&nbsp;") + "</span>"
+    var a = document.createTextNode(b);
+
+    var line =  $("<div class='line' style='width:100%'><span>" + promp + "</span>");
+    line.append(beg);
+    line.append(curs);
+    line.append(end);
+    $("#cmd").html(line);
+};
+(function(){
+
+
+    Commands = {
+        commands: {
+            "ls": Hlynux.ls,
+            "cd": Hlynux.cd,
+            "mkdir": Hlynux.mkdir,
+            "rmdir": Hlynux.rmdir,
+            "pwd": Hlynux.pwd,
+            "date": Hlynux.date,
+            "export": Hlynux.exportVar,
+            "echo": Hlynux.echo,
+            "alias": Hlynux.alias,
+            "cat": Hlynux.cat,
+            "cats": Hlynux.cats,
+            "clear": Hlynux.clear,
+            "chmod": Hlynux.chmod,
+            "chown": Hlynux.chown,
+            "mv": Hlynux.mv,
+            "cp": Hlynux.cp,
+            "rm": Hlynux.rm,
+            "touch": Hlynux.touch,
+            "js": Hlynux.js,
+            "ln": Hlynux.ln,
+            "write": Hlynux.write,
+            "append": Hlynux.append
         }
     }
 
-    function bottom(){
-        $("html, body").animate({ scrollTop: $(document).height() }, 1);
-    };
 
-    function read(promp, fun) {
-        var msg;
-        var updatePrump = function(){
-            if(typeof promp == "function")
-                msg = promp();
-            else
-                msg = promp;
-        };
-        updatePrump();
-
-        $("#txt").off("input keydown keyup");
-        $("#txt").val("");
-        updateCMD(msg);
-        $("#txt").on("keydown", function(e){
-            if(e.which == 9) // Tab
-            {
-                e.preventDefault();
-                if($("#txt").val() == "")
-                    return;
-                var a = $("#txt").val().split(" ");
-                b = a[a.length - 1];
-                var res = [];
-                var keys =Object.keys(Terminal.Commands);
-                for (c in keys)
-                {
-                    if(keys[c].length >= b.length && keys[c].slice(0, b.length) == b)
-                        res.push(keys[c]);
-                }
-                var dirs = Hlynux.path(Hlynux.cwd);
-                for (d in dirs)
-                {
-                    if(d != "~" && d.length >= b.length)
-                    {
-                        if(d.slice(0, b.length) == b)
-                            res.push(d);
-                    }
-                }
-                if(res.length == 1)
-                {
-                    a[a.length - 1]  = res[0];
-                    $("#txt").val(a.join(" "));
-                }
-                else if(res.length > 1)
-                {
-                    var div = $("<div class='line' style='width:100%'>" + Hlynux.envVars["PS1"]());
-                    div.append(document.createTextNode($("#txt").val()));
-                    $("#out").append(div);
-                    print(res.join("&nbsp;&nbsp;"));
-                }
-            }
-            else if(e.which == 38) { // Up
-                var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
-                if(Terminal.histID < a.length)
-                    Terminal.histID++;
-                $("#txt").val(a[(a.length - 1) - Terminal.histID]);
-            }
-            else if(e.which == 40) { // Down
-                var a = Hlynux.path("~/.history")["~"]["content"].split("\n");
-                if(Terminal.histID > 0)
-                {
-                    Terminal.histID--;
-                    $("#txt").val(a[(a.length - 1) - Terminal.histID]);
-                }
-                else
-                    $("#txt").val("");
-            }
-            else if(e.which == 13) // Enter
-                e.preventDefault();
-            updateCMD(msg);
-        });
-        $("#txt").on("input keyup", function(e) {
-            if(e.which == 9) { // Tab
-                e.preventDefault();
-                return false;
-            }
-            else if(e.which == 13) { // Enter
-                e.preventDefault();
-                $("#txt").val($("#txt").val().split("\n")[0]);
-                var a = document.createTextNode($("#txt").val());
-                var div = $("<div class='line' style='width:100%'><span>" + msg + "</span>");
-                div.append(a)
-                $("#out").append(div);
-                fun($("#txt").val());
-                updatePrump();
-                $("#txt").val("");
-                bottom();
-                if(Terminal.update)
-                {
-                    Terminal.update = false;
-                    return;
-                }
-                if(Terminal.spawn)
-                {
-                    Terminal.spawn = true;
-                    updateCMD(msg);
-                    $("#txt").off("input keydown keyup");
-                    $("#cmd").html("");
-                    read(promp, fun);
-                    return;
-                }
-                if(Terminal.interp)
-                    updateCMD(msg);
-                return;
-            }
-            else if(e.which == 67 && e.ctrlKey) // Ctrl + C
-            {
-                read(Hlynux.envVars["PS1"], Terminal.CommandHandler);
-                return;
-            }
-            else
-            {
-                Terminal.histID = 0;
-            }
-            updateCMD(msg);
-        });
-    };
-
-    function updateCMD(promp){
-        var b = $("#txt").val();
-        var beg = document.createTextNode(b.slice(0, Terminal.curPos()));
-        var end = document.createTextNode(b.slice(Terminal.curPos()+1, b.length));
-        var curs = "<span class='cursor'>" + (Terminal.curPos() < b.length ? b[Terminal.curPos()] : "&nbsp;") + "</span>"
-        var a = document.createTextNode(b);
-
-        var line =  $("<div class='line' style='width:100%'><span>" + promp + "</span>");
-        line.append(beg);
-        line.append(curs);
-        line.append(end);
-        $("#cmd").html(line);
-    };
-
-
-    var UserCommand = function(command, args, directive){
+    UserCommand = function(command, args, directive){
         if (!(this instanceof UserCommand)) return new UserCommand(command,args,directive);
         this.commandString = command;
-        if(typeof Terminal !== "undefined"){ // Lazy way to handle aliases
-            if(command in Terminal.Commands){
-                this.command = Terminal.Commands[command];
-            }
-            else if (command in Terminal.aliases){
-                this.command = Terminal.aliases[command].command;
-                this.args = Terminal.aliases[command].args;
-                this.directive = Terminal.aliases[command].directive;
-            } else {
-                print(Hlynux.errorCol("sh: command not found: ") + command);
-                this.invalid = true;
-            }
+        this.args = [];
+        if (typeof Commands.aliases !== "undefined" && command in Commands.aliases){
+            this.command = Commands.aliases[command].command;
+            this.args = Commands.aliases[command].args;
+            this.directive = Commands.aliases[command].directive;
+        }else if(command in Commands.commands){
+            this.command = Commands.commands[command];
+        } else {
+            print(Hlynux.errorCol("sh: command not found: ") + command);
+            this.invalid = true;
         }
-        this.args = args || [];
+        this.args = this.args.concat(args); // For aliases to work properly
         this.directive = directive || UserCommand.Directives.NONE;
         this.STDIN = [];
         this.STDOUT = [];
@@ -200,7 +237,12 @@
         this.readOffset++;
         return s;
     }
-    var Terminal = {
+    Commands.aliases = {
+        "l": new UserCommand("ls",["-la"]),
+        "c": new UserCommand("cd"),
+        "..": new UserCommand("cd",[".."])
+    };
+    Terminal = {
         author: "Glitch",
         version: "0.7",
 
@@ -235,40 +277,7 @@
             return $("#txt").prop("selectionStart");
         },
 
-        Commands: {
-            "ls": Hlynux.ls,
-            "cd": Hlynux.cd,
-            "mkdir": Hlynux.mkdir,
-            "rmdir": Hlynux.rmdir,
-            "pwd": Hlynux.pwd,
-            "date": Hlynux.date,
-            "export": Hlynux.exportVar,
-            "echo": Hlynux.echo,
-            "alias": Hlynux.alias,
-            "cat": Hlynux.cat,
-            "cats": Hlynux.cats,
-            "clear": Hlynux.clear,
-            "chmod": Hlynux.chmod,
-            "chown": Hlynux.chown,
-            "mv": Hlynux.mv,
-            "cp": Hlynux.cp,
-            "rm": Hlynux.rm,
-            "touch": Hlynux.touch,
-            "js": Hlynux.js,
-            "ln": Hlynux.ln,
-            "write": Hlynux.write,
-            "append": Hlynux.append
-        },
-
-
-        aliases: {
-            "l": new UserCommand("ls",["-la"]),
-            "c": new UserCommand("cd"),
-            "..": new UserCommand("cd","..")
-        },
-
         CommandHandler: function(com) {
-            console.log(com);
             if(com == "")
                 return;
             Hlynux.addHistory(com);
@@ -280,6 +289,17 @@
 
         CommandParser: function(com){
             var c = com.split(" "), commands = [];
+            if(c[0] == ">>")
+            {
+                var wF = function(data){
+                    var a = {STDIN: data}
+                    Hlynux.write(c[1],a);
+                };
+                Terminal.spawn = false;
+                Terminal.interp = true;
+                read("", wF);
+                return false;
+            }
             if (c.length < 1) throw new ArgumentError("fail");
             var command, args, directive = UserCommand.Directives.NONE;
             var i = 0;
@@ -289,6 +309,7 @@
                 args = [];
                 while(j < c.length && !(c[j].trim() in UserCommand.DirectiveCodes)){
                     args.push(c[j].trim());
+                    j++;
                 }
                 directive = UserCommand.Directives.NONE;
                 if(j < c.length){ // Must have encountered a directive
@@ -301,15 +322,16 @@
                     commands.push(cmd);
 
                 if(directive == UserCommand.Directives.WRITE){
+                    if(j+1 >= c.length) throw new ArgumentError("Cannot redirect output to nuttn");
                     commands.push(new UserCommand("write",c[j+1]));
                     j++;
                 } else if(directive == UserCommand.Directives.APPEND){
+                    if(j+1 >= c.length) throw new ArgumentError("Cannot redirect output to nuttn");
                     commands.push(new UserCommand("append",c[j+1]));
                     j++;
                 }
                 i += j + 1;
             }
-            console.log(commands);
             return commands;
         },
 
@@ -317,7 +339,7 @@
             for(var i = 0;i < commands.length;i++){
                 cmd = commands[i];
                 cmd.execute();
-                
+
                 switch(cmd.directive){
                     case UserCommand.Directives.NONE:
                         cmd.output();
