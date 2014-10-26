@@ -103,7 +103,7 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        if(FS == "" || typeof FS === undefined)
+        if(FS == "" || typeof FS === "undefined")
             this.initFS();
         else
             this.filesystem = FS;
@@ -180,7 +180,7 @@ var Hlynux = {
         if(arg.length >= 1){
             var file = arg[0];
             f = Hlynux.path(file);
-            if(typeof f !== undefined && typeof f["~"]["content"] !== undefined)
+            if(f !== false && typeof f["~"]["content"] !== "undefined")
             {
                 arr = f["~"]["content"];//.split("\n");
                 // getOUT("cat").push(arr);
@@ -195,7 +195,7 @@ var Hlynux = {
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
         console.log(p, name);
-        if(typeof Hlynux.path(p) === undefined)
+        if(Hlynux.path(p,false) === false)
         {
             var dir = Hlynux.path(Hlynux.upDirPath(p));
             dir[name] = new file(name);
@@ -224,59 +224,63 @@ var Hlynux = {
         // getOUT("date").push(getDateTime());
     },
 
-    path: function(p, abs){
-        try
-        {
-            p = p.replace("~", this.envVars["HOME"]);
-            if(p.slice(0,2) == "..")
-                p = p.replace("..", this.upDirPath(this.cwd));
-            if(p == "..")
-            {
-                p += "/";
+    expandRelative: function(path, cwd, offset){
+        offset = offset || 0;
+        // console.log(path,cwd,offset);
+        if(offset >= path.length){
+            return cwd;
+        } else {
+            if(path[offset] === "~"){
+                return Hlynux.expandRelative(path, Hlynux.envVars["HOME"], offset+1);
+            } else if (path[offset] === "..") {
+                return Hlynux.expandRelative(path, Hlynux.upDirPath(cwd), offset+1);
+            } else if (cwd[cwd.length - 1] == "/") {
+                return Hlynux.expandRelative(path, cwd + path[offset], offset+1);
             }
-            if(p == "/")
-            {
-                if(typeof abs !== "undefined")
-                    return p;
-                return Hlynux.filesystem;
-            }
-            else if(p[0] == "/")
-            {
-                //absolute
-                p = p + (p[p.length-1] == "/" ? "" : "/");
-                var arr = p.split("/");
-                arr = arr.slice(1, arr.length -1);
+            return Hlynux.expandRelative(path, cwd + "/" + path[offset], offset+1);
+        }
 
-                var ret = this.filesystem[arr[0]];
-                p = "/" + arr[0] + "/";
-                arr = arr.slice(1);
-                for (d in arr)
-                {
-                    var a = ret[arr[d]];
-                    ret = a;
-                    if(typeof ret === "undefined")
-                    {
-                        p = void 0;
-                        break;
-                    }
-                    p += a["~"]["name"] + "/"
-                }
-                if(typeof abs !== "undefined")
-                    return (typeof ret === "undefined" ? void 0 : p);
-                return ret;
-            }
-            else
-            {
-                //relative
-                return Hlynux.path(Hlynux.cwd + (Hlynux.cwd[Hlynux.cwd.length - 1] == "/" ? "" : "/") + p + (p[p.length-1] == "/" ? "" : "/"), abs);
-            }
+    },
+
+    expandPath: function(path) {
+        var cwd = Hlynux.cwd;
+        if(path === "/"){
+            return Hlynux.filesystem;
+        } else if (path[0] === "/") {
+            cwd = "/";
         }
-        catch(err)
-        {
-            console.log("Path: " + err.message);
-            print(Hlynux.errorCol("path: No such file or directory: ") + p);
-            return undefined;
+        return Hlynux.expandRelative(path.split("/"), cwd);
+
+    },
+
+    path: function(path, errors){
+        errors = errors || true;
+        // console.log(path);
+        var cwd = Hlynux.cwd;
+        if(path === "/"){
+            return Hlynux.filesystem;
+        } else if (path[0] === "/") {
+            cwd = "/";
         }
+        var absPath = Hlynux.expandRelative(path.split("/"), cwd).split("/");
+        absPath = absPath.slice(1, absPath.length);
+
+        // console.log(absPath);
+
+        try {
+            var ret = Hlynux.filesystem;
+            absPath.forEach(function(item){
+                if(typeof ret[item] === "undefined")
+                    throw new TypeError("Invalid Path");
+                ret = ret[item];
+            });
+            return ret;
+        } catch(e) {
+            console.log("Path: " + e.message);
+            errors && print(Hlynux.errorCol("path: No such file or directory: ") + path);
+            return false;
+        }
+
     },
 
     errorCol: function(s){
@@ -309,11 +313,11 @@ var Hlynux = {
 
     upDirPath: function (p) {
         var a = p;
-        if(p.slice(0, 2) != "..")
-        {
-            p = Hlynux.path(p, true);
-        }
-        if(typeof p === undefined)
+        // if(p.slice(0, 2) != "..")
+        // {
+        //     p = Hlynux.path(p, true);
+        // }
+        if(typeof p === "undefined")
         {
             p = Hlynux.cwd + "/" + a;
         }
@@ -367,7 +371,7 @@ var Hlynux = {
     mkdir: function(arg){
         // var arg = getIN("mkdir")[0];
         var p = arg[0];
-        if(typeof Hlynux.path(p) === undefined)
+        if(Hlynux.path(p) === false)
         {
             var arr = p.split("/");
             var dir = arr[arr.length - 1];
@@ -426,7 +430,7 @@ var Hlynux = {
         // var arg = getIN("touch")[0];
         var p = arg[0];
         var name = p.split("/").slice(-1)[0];
-        if(typeof Hlynux.path(p) === undefined)
+        if(Hlynux.path(p) === false)
         {
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
@@ -483,18 +487,21 @@ var Hlynux = {
     cd: function(arg, cmd){
         // var arg = getIN("cd")[0];
         var dir = arg[0];
-        if(typeofdir === undefined || dir == "")
+        if(typeof dir === "undefined" || dir == "")
         {
             Hlynux.cwd = Hlynux.envVars["HOME"];
             return;
         }
-        var d = Hlynux.path(dir, true);
+        var d = Hlynux.expandPath(dir, true);
         var t;
-        if(d != "/" && d != "..")
-            t = Hlynux.path(dir)["~"]["type"];
+        if(d != "/" && d != ".."){
+            t = Hlynux.path(dir)
+            if(t !== false)
+                t = t["~"]["type"];
+        }
         else
             t = "d";
-        if(typeof d !== undefined)
+        if(typeof d !== "undefined")
         {
             if(t == "l")
                 Hlynux.cwd = Hlynux.path(dir)["~"]["path"];
@@ -512,14 +519,14 @@ var Hlynux = {
         // var arg = getIN("ls")[0];
         var opt;
         var dir = "";
-        if(typeof arg[0] !== undefined && arg[0][0] == "-")
+        if(typeof arg[0] !== "undefined" && arg[0][0] == "-")
         {
             opt = arg[0].slice(1);
             dir = arg[1];
         }
         else
             dir = arg[0];
-        if(typeof dir === undefined)
+        if(typeof dir === "undefined")
             dir = Hlynux.cwd;
         if(dir != "/" && Hlynux.path(dir)["~"]["type"] == "l")
             dir = Hlynux.path(dir)["~"]["path"];
@@ -627,7 +634,7 @@ var Hlynux = {
             }
         });
         var file = Hlynux.path(arg[0]);
-        if(typeof file !== undefined)
+        if(file !== false)
         {
             $("#extra").show();
             var a = file["~"]["content"].split("\n");
@@ -638,7 +645,7 @@ var Hlynux = {
             $("#extra").append("<div class='line'>"+Hlynux.backColor(Hlynux.foreColor("(END) 'q' to quit", "black"), "#00FF00")+"</div>");
             window.scrollTo(0, 0);
         }
-        else if(typeof arg[0] !== undefined)
+        else if(typeof arg[0] !== "undefined")
         {
             $("#extra").show();
             var a = arg[0].split("\n");
