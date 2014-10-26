@@ -626,7 +626,7 @@ var Hlynux = {
                 $("#extra").append("<div class='line'>"+a[x]+"</div>");
             }
             $("#extra").append("<div class='line'>"+Hlynux.backColor(Hlynux.foreColor("(END) 'q' to quit", "black"), "#00FF00")+"</div>");
-            $(window).scrollTo(0);
+            window.scrollTo(0, 0);
         }
     },
 
