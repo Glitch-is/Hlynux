@@ -1,6 +1,6 @@
 var Terminal, UserCommand, Commands;
 function print(s) {
-    i   f(typeof s == "object")
+    if(typeof s == "object")
     {
         for (x in s)
             print(s[x]);
@@ -254,7 +254,7 @@ function updateCMD(promp){
     };
     Terminal = {
         author: "Glitch",
-        version: "0.7",
+        version: "0.8",
 
         init: function() {
             this.bindKeys();
