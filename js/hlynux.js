@@ -192,7 +192,7 @@ var Hlynux = {
     },
     write: function(arg){
         // var arg = getIN("touch")[0];
-        var p = arg[0];
+        var p = arg;
         var name = p.split("/").slice(-1)[0];
         console.log(p, name);
         if(Hlynux.path(p,false) === false)
@@ -207,7 +207,7 @@ var Hlynux = {
     },
 
     append: function(arg, cmd){
-        var file = Hlynux.path($.trim(arg[0]));
+        var file = Hlynux.path($.trim(arg));
         file["~"]["content"] += cmd.STDIN + "\n";
         updateFS();
     },
