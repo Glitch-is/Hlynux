@@ -191,10 +191,10 @@ var Hlynux = {
         }
     },
     write: function(arg){
+        console.log(arg);
         // var arg = getIN("touch")[0];
         var p = arg;
         var name = p.split("/").slice(-1)[0];
-        console.log(name);
         if(Hlynux.path(p,false) === false)
         {
             var dir = Hlynux.path(Hlynux.upDirPath(p));
@@ -207,6 +207,7 @@ var Hlynux = {
     },
 
     append: function(arg, cmd){
+        console.log(arg);
         var file = Hlynux.path($.trim(arg));
         file["~"]["content"] += cmd.STDIN + "\n";
         updateFS();
@@ -265,12 +266,12 @@ var Hlynux = {
         var absPath = Hlynux.expandRelative(path.split("/"), cwd).split("/");
         absPath = absPath.slice(1, absPath.length);
 
-        console.log(absPath);
+        // console.log(absPath);
 
         try {
             var ret = Hlynux.filesystem;
             absPath.forEach(function(item){
-                console.log(item);
+                // console.log(item);
                 if(item === "") return;
                 if(typeof ret[item] === "undefined")
                     throw new TypeError("Invalid Path");
@@ -278,7 +279,7 @@ var Hlynux = {
             });
             return ret;
         } catch(e) {
-            console.log("Path: " + e.message);
+            // console.log("Path: " + e.message);
             errors && print(Hlynux.errorCol("path: No such file or directory: ") + path);
             return false;
         }
@@ -431,7 +432,7 @@ var Hlynux = {
         var name = p.split("/").slice(-1)[0];
         if(Hlynux.path(p, false) === false)
         {
-            console.log(Hlynux.upDirPath(p));
+            // console.log(Hlynux.upDirPath(p));
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
         }
@@ -467,16 +468,16 @@ var Hlynux = {
             var f = Hlynux.path(arg[0]);
             if(f["~"]["type"] == "f")
             {
-                try
-                {
-                    window.eval(f["~"]["content"]);
-                }
-                catch(err)
-                {
-                    console.log(err.message);
-                    // getOUT("js").push(Hlynux.errorCol(err.message));
-                    cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
-                }
+                // try
+                // {
+                window.eval(f["~"]["content"]);
+                // }
+                // catch(err)
+                // {
+                //     // console.log(err.message);
+                //     // getOUT("js").push(Hlynux.errorCol(err.message));
+                //     cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
+                // }
             }
             else
                 cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);

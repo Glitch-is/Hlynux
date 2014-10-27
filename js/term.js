@@ -1,11 +1,11 @@
 var Terminal, UserCommand, Commands;
 function print(s) {
-    if(typeof s == "object")
+    i   f(typeof s == "object")
     {
         for (x in s)
             print(s[x]);
     }
-    else if(s.split("\n").length > 1)
+    else if(typeof s === "string" && s.split("\n").length > 1)
     {
         var a = s.split("\n");
         for (x in a)
