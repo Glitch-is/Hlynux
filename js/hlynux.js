@@ -194,7 +194,7 @@ var Hlynux = {
         // var arg = getIN("touch")[0];
         var p = arg;
         var name = p.split("/").slice(-1)[0];
-        console.log(p, name);
+        console.log(name);
         if(Hlynux.path(p,false) === false)
         {
             var dir = Hlynux.path(Hlynux.upDirPath(p));
