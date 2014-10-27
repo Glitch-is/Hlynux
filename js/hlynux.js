@@ -417,7 +417,9 @@ var Hlynux = {
     rm: function(arg){
         // var arg = getIN("rm")[0];
         var p = arg[0];
+        console.log(p);
         var name = p.split("/").slice(-1)[0];
+        console.log(name);
         var dir = Hlynux.path(Hlynux.upDirPath(p));
         if(dir[name]["~"]["type"] == "f")
         {
