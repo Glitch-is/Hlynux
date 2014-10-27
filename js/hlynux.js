@@ -468,16 +468,16 @@ var Hlynux = {
             var f = Hlynux.path(arg[0]);
             if(f["~"]["type"] == "f")
             {
-                // try
-                // {
-                window.eval(f["~"]["content"]);
-                // }
-                // catch(err)
-                // {
-                //     // console.log(err.message);
-                //     // getOUT("js").push(Hlynux.errorCol(err.message));
-                //     cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
-                // }
+                try
+                {
+                    window.eval(f["~"]["content"]);
+                }
+                catch(err)
+                {
+                    // console.log(err.message);
+                    // getOUT("js").push(Hlynux.errorCol(err.message));
+                    cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
+                }
             }
             else
                 cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
