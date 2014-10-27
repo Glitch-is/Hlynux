@@ -225,21 +225,22 @@ var Hlynux = {
         // getOUT("date").push(getDateTime());
     },
 
-    expandRelative: function(path, cwd, offset){
-        offset = offset || 0;
-        // console.log(path,cwd,offset);
-        if(offset >= path.length){
-            return cwd;
-        } else {
+    expandRelative: function(path){
+        var cwd = "";
+        for(var offset=0; offset < path.length; offset++){
             if(path[offset] === "~"){
-                return Hlynux.expandRelative(path, Hlynux.envVars["HOME"], offset+1);
+                cwd = Hlynux.envVars["HOME"];
             } else if (path[offset] === "..") {
-                return Hlynux.expandRelative(path, Hlynux.upDirPath(cwd), offset+1);
+                cwd = Hlynux.upDirPath(cwd);
+            } else if (path[offset] === "."){
+                // Do nothing?
             } else if (cwd[cwd.length - 1] == "/") {
-                return Hlynux.expandRelative(path, cwd + path[offset], offset+1);
+                cwd = cwd + path[offset];
+            } else {
+                cwd = cwd + "/" + path[offset];
             }
-            return Hlynux.expandRelative(path, cwd + "/" + path[offset], offset+1);
         }
+        return cwd;
 
     },
 
@@ -255,7 +256,7 @@ var Hlynux = {
     },
 
     path: function(path, errors){
-        errors = errors || true;
+        if(arguments.length < 2) errors = true;
         // console.log(path);
         var cwd = Hlynux.cwd;
         if(path === "/"){
@@ -266,21 +267,18 @@ var Hlynux = {
         var absPath = Hlynux.expandRelative(path.split("/"), cwd).split("/");
         absPath = absPath.slice(1, absPath.length);
 
-        // console.log(absPath);
-
         try {
             var ret = Hlynux.filesystem;
             absPath.forEach(function(item){
-                // console.log(item);
                 if(item === "") return;
-                if(typeof ret[item] === "undefined")
-                    throw new TypeError("Invalid Path");
+                if(!(item in ret)) throw new TypeError("Invalid Path");
                 ret = ret[item];
             });
             return ret;
         } catch(e) {
-            // console.log("Path: " + e.message);
-            errors && print(Hlynux.errorCol("path: No such file or directory: ") + path);
+            if(!errors) return false;
+            console.log("Path: " + e.message);
+            print(Hlynux.errorCol("path: No such file or directory: ") + path);
             return false;
         }
 
@@ -418,10 +416,12 @@ var Hlynux = {
 
     rm: function(arg){
         // var arg = getIN("rm")[0];
-        var p = Hlynux.path(arg[0]);
-        if(p["~"]["type"] == "f")
+        var p = arg[0];
+        var name = p.split("/").slice(-1)[0];
+        var dir = Hlynux.path(Hlynux.upDirPath(p));
+        if(dir[name]["~"]["type"] == "f")
         {
-            delete p;
+            delete dir[name];
         }
         updateFS()
     },
