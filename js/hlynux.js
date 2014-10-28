@@ -837,6 +837,118 @@ var manual = function(){
                 "-->\n" +
                 "<r><b>SEE ALSO</b></r>\n" +
                 "--><r><b>hlynux</b></r>, <r><b>export</b></r>\n",
+
+        alias:  "<r><b>NAME</b></r>\n" +
+                "-->alias - define or display aliases\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>alias</b></r> [<b>alias-name</b>[=<b>string</b>]]\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->The <b>alias</b> utility shall create or redefine alias definitions or write the values of existing alias definitions to standard outpu.\n" +
+                "-->An alias definition provides a string value that shall replace a command name when it is encountered.\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>alias l = ls -la</b></r>\n" +
+                "-->-->Create a short alias for a commonly used ls command\n" +
+                "-->\n" +
+                "--><r><b>alias .. = cd ..</b></r>\n" +
+                "-->-->A short command for going up a single directory\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>\n",
+
+        cat:    "<r><b>NAME</b></r>\n" +
+                "-->cat - concatenate files and print on the standard output\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>cat</b></r> [<b>OPTION</b>]... [<b>FILE</b>]...\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Concatenate FILE(s), or standard input, to standard output.\n" +
+                "-->\n" +
+                "<r><b>OPTIONS</b></r>\n" +
+                "--><r><b>-b</b></r>\n" +
+                "-->-->Number nonempty output lines, overrides <r><b>-n</b></r>\n" +
+                "-->\n" +
+                "--><r><b>-n</b></r>\n" +
+                "-->-->number all output lines\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>cat</b></r> <b>file</b>\n" +
+                "-->-->Displays the contents of <b>file</b> to standard output\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>less</b></r>\n",
+
+        clear:  "<r><b>NAME</b></r>\n" +
+                "-->clear - clear the terminal screen\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>clear</b></r>\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "--><r><b>clear</b></r> clears your screen if this is possible. It looks in the environment for the terminal type and then in the <r><b>terminfo</b></r> database to figure out how ti clear the screen.\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>less</b></r>\n",
+
+        chmod:  "<r><b>NAME</b></r>\n" +
+                "-->chmod - change file mode bits\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>chmod</b></r> [<b>OPTION</b>]... <b>OCTAL-MODE FILE</b>]\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "--><r><b>chmod</b></r> changes the file mode bits of each given file according to <b>mode</b>. which can be either a symbolic representation of changes to make, or an octal number representing the bit pattern for the new mode bits.\n" +
+                "-->\n" +
+                "<r><b>OPTIONS</b></r>\n" +
+                "--><r><b>-r</b></r>\n" +
+                "-->-->Recursivly changes mode of files\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>chmod</b></r> 777 <b>file</b>\n" +
+                "-->-->Changes the mode of <b>file</b> to full access for all groups and users\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>chown</b></r>\n",
+
+        chown:  "<r><b>NAME</b></r>\n" +
+                "-->chown - change file owner and group\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>chown</b></r> [<b>OPTION</b>]... [<b>OWNER</b>]:[<b>GROUP</b>] <b>FILE</b>]\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "--><r><b>chown</b></r> changes the user and/or group ownership of each given file. \n" +
+                "-->\n" +
+                "<r><b>OPTIONS</b></r>\n" +
+                "--><r><b>-r</b></r>\n" +
+                "-->-->Recursivly changes owner of files\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>chown</b></r> root <b>file</b>\n" +
+                "-->-->Changes the owner of <b>file</b> to root\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>chmod</b></r>\n",
+
+        less:   "<r><b>NAME</b></r>\n" +
+                "-->less - file perusal filter for crt viewing\n" +
+                "-->\n" +
+                "<r><b>SYNOPSIS</b></r>\n" +
+                "--><r><b>less</b></r> <b>FILE</b>\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "--><b>Less</b> is used to display files in a new traversable screen. It's way faster than opening up an editor like <b>vi</b> because it doesn't have to read the entire input file at any given time which makes it very lightweight.\n" +
+                "-->Commands are based on both <b>more</b> and <b>vi</b>.\n" +
+                "-->\n" +
+                "<r><b>EXAMPLE</b></r>\n" +
+                "--><r><b>less</b></r> <b>file</b>\n" +
+                "-->-->Displays the contents of <b>file</b> in a new less screen\n" +
+                "-->\n" +
+                "<r><b>SEE ALSO</b></r>\n" +
+                "--><r><b>hlynux</b></r>, <r><b>cat</b></r>\n",
     };
 
     for (m in files)
