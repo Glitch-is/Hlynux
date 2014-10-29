@@ -192,6 +192,7 @@ function updateCMD(promp){
             "ln": Hlynux.ln,
             "less": Hlynux.less,
             "man": Hlynux.man,
+            "startx": Hlynux.startx,
             "write": Hlynux.write,
             "append": Hlynux.append
         }

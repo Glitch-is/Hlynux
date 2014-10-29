@@ -662,14 +662,12 @@ var Hlynux = {
         }
     },
 
-    startx: {
-        $("body").append("<canvas id='screen'></canvas>");
-        canvas = document.getElementById("screen");
-        canvas.width = document.body.clientWidth; //document.width is obsolete
-        canvas.height = document.body.clientHeight;
-        var ctx = canvas.getContext("2d");
-        ctx.font = "80px Arial";
-        ctx.fillText("Totally accurate Window Manager 10/10",10,50);
+    startx: function(){
+        $("#txt").off("input keydown keyup");
+        $("#out").hide();
+        $("#cmd").hide();
+
+        DisplayServer.init();
     },
 
     pwd: function(args, cmd){
