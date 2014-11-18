@@ -103,7 +103,8 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        if(FS == "" || typeof FS === "undefined")
+        console.log(FS);
+        if(FS == "" || FS != "null")
             this.initFS();
         else
             this.filesystem = FS;

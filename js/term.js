@@ -264,12 +264,14 @@ function updateCMD(promp){
         },
         greeting: function()
         {
+            print("<b>");
             print("&nbsp;&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;______&nbsp;&nbsp;___&nbsp;&nbsp;&nbsp;____&nbsp;&nbsp;___&nbsp;&nbsp;__");
             print("&nbsp;&nbsp;&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/\\&nbsp;\\/&nbsp;/&nbsp;\|&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;|/&nbsp;/");
             print("&nbsp;&nbsp;/&nbsp;/_/&nbsp;/&nbsp;/&nbsp;&nbsp;\\&nbsp;&nbsp;/&nbsp;&nbsp;|/&nbsp;/&nbsp;/&nbsp;/&nbsp;/|&nbsp;&nbsp;&nbsp;/ ");
             print("&nbsp;/&nbsp;__&nbsp;&nbsp;/&nbsp;/___/&nbsp;/&nbsp;/|&nbsp;&nbsp;/&nbsp;/_/&nbsp;//&nbsp;&nbsp;&nbsp;|  ");
             print("/_/&nbsp;/_/_____/_/_/&nbsp;|_/\\____//_/|_|  ");
             print("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version " + this.version + " By " + this.author);
+            print("</b>");
         },
 
         histID: 0,
