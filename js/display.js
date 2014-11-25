@@ -66,6 +66,9 @@ var DisplayServer = {
 };
 
 window.onresize = function(event) {
-    DisplayServer.screen.setWidth(window.innerWidth);
-    DisplayServer.screen.setHeight(window.innerHeight);
+    if(DisplayServer !== undefined)
+    {
+        DisplayServer.screen.setWidth(window.innerWidth);
+        DisplayServer.screen.setHeight(window.innerHeight);
+    }
 };

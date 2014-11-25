@@ -13,12 +13,6 @@ function link(name, path, modified, access, owner, group)
     this["~"] = {type: "l", name: name, modified: getDateTime(), owner: (typeof owner !== 'undefined' ? owner : Hlynux.envVars["USER"]), group: (typeof group !== 'undefined' ? group : Hlynux.envVars["USER"]), access: (typeof access !== 'undefined' ? access : "755"), path: path}
 };
 
-// function command(name, func)
-// {
-//     this.name = name;
-//     this.func = func;
-// };
-
 function getIN(cmd)
 {
     return Terminal.Commands[cmd].STDIN;
@@ -91,7 +85,7 @@ var Hlynux = {
         var home = this.getHomeDir();
         if(this.cwd.slice(0, home.length) == home)
         {
-            return "~" + Hlynux.cwd.slice(0, Hlynux.cwd.length - 1).slice(home.length);
+            return "~" + ((Hlynux.cwd[Hlynux.cwd.length - 1] == "/") ? Hlynux.cwd.slice(0, Hlynux.cwd.length - 1) : Hlynux.cwd).slice(home.length);
         }
         return this.cwd;
     },
@@ -103,7 +97,6 @@ var Hlynux = {
     boot: function(){
         // Initalize Hlynux
         var FS = getFS();
-        console.log(FS);
         if(FS == "" || FS != "null")
             this.initFS();
         else
@@ -248,7 +241,7 @@ var Hlynux = {
     expandPath: function(path) {
         var cwd = Hlynux.cwd;
         if(path === "/"){
-            return Hlynux.filesystem;
+            return "/";//Hlynux.filesystem;
         } else if (path[0] === "/") {
             cwd = "/";
         }
@@ -498,8 +491,9 @@ var Hlynux = {
             return;
         }
         var d = Hlynux.expandPath(dir, true);
+        console.log(d);
         var t;
-        if(d != "/" && d != ".."){
+        if(d['~'] !== undefined){
             t = Hlynux.path(dir)
             if(t !== false)
                 t = t["~"]["type"];
@@ -696,6 +690,41 @@ var manual = function(){
                     "-->\n" +
                     "<r><b>SEE ALSO</b></r>\n" +
                     "--><r><b>hlynux</b></r>\n",
+
+        hlynux: "<r><b>NAME</b></r>\n" +
+                "-->Hlynux - The official Glitch Network Operating System\n" +
+                "-->\n" +
+                "<r><b>DESCRIPTION</b></r>\n" +
+                "-->Hlynux simulates a Linux shell and is purely written in JavaScript\n" +
+                "-->\n" +
+                "<r><b>COMMANDS</b></r>\n" +
+                "-->List of the available commands\n" +
+                "-->\n" +
+                "-->--><r><b>ls</r></b>" +
+                "-->--><r><b>cd</r></b>" +
+                "-->--><r><b>mkdir</r></b>" +
+                "-->--><r><b>rmdir</r></b>" +
+                "-->--><r><b>pwd</r></b>" +
+                "-->--><r><b>date</r></b>" +
+                "-->--><r><b>export</r></b>" +
+                "-->--><r><b>echo</r></b>" +
+                "-->--><r><b>alias</r></b>" +
+                "-->--><r><b>cat</r></b>" +
+                "-->--><r><b>cats</r></b>" +
+                "-->--><r><b>clear</r></b>" +
+                "-->--><r><b>chmod</r></b>" +
+                "-->--><r><b>chown</r></b>" +
+                "-->--><r><b>mv</r></b>" +
+                "-->--><r><b>cp</r></b>" +
+                "-->--><r><b>rm</r></b>" +
+                "-->--><r><b>touch</r></b>" +
+                "-->--><r><b>js</r></b>" +
+                "-->--><r><b>ln</r></b>" +
+                "-->--><r><b>less</r></b>" +
+                "-->--><r><b>man</r></b>" +
+                "-->--><r><b>startx</r></b>" +
+                "-->--><r><b>write</r></b>" +
+                "-->--><r><b>append</r></b>"
 
         man:    "<r><b>NAME</b></r>\n" +
                 "-->man - an interface to the on-line reference manuals\n" +

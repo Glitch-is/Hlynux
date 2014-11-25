@@ -255,7 +255,7 @@ function updateCMD(promp){
     };
     Terminal = {
         author: "Glitch",
-        version: "0.8",
+        version: "1.0",
 
         init: function() {
             this.bindKeys();
@@ -264,14 +264,12 @@ function updateCMD(promp){
         },
         greeting: function()
         {
-            print("<b>");
-            print("&nbsp;&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;______&nbsp;&nbsp;___&nbsp;&nbsp;&nbsp;____&nbsp;&nbsp;___&nbsp;&nbsp;__");
-            print("&nbsp;&nbsp;&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/\\&nbsp;\\/&nbsp;/&nbsp;\|&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;|/&nbsp;/");
-            print("&nbsp;&nbsp;/&nbsp;/_/&nbsp;/&nbsp;/&nbsp;&nbsp;\\&nbsp;&nbsp;/&nbsp;&nbsp;|/&nbsp;/&nbsp;/&nbsp;/&nbsp;/|&nbsp;&nbsp;&nbsp;/ ");
-            print("&nbsp;/&nbsp;__&nbsp;&nbsp;/&nbsp;/___/&nbsp;/&nbsp;/|&nbsp;&nbsp;/&nbsp;/_/&nbsp;//&nbsp;&nbsp;&nbsp;|  ");
-            print("/_/&nbsp;/_/_____/_/_/&nbsp;|_/\\____//_/|_|  ");
-            print("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version " + this.version + " By " + this.author);
-            print("</b>");
+            print("<b>&nbsp;&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;______&nbsp;&nbsp;___&nbsp;&nbsp;&nbsp;____&nbsp;&nbsp;___&nbsp;&nbsp;__</b>");
+            print("<b>&nbsp;&nbsp;&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/\\&nbsp;\\/&nbsp;/&nbsp;\|&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;/&nbsp;|/&nbsp;/</b>");
+            print("<b>&nbsp;&nbsp;/&nbsp;/_/&nbsp;/&nbsp;/&nbsp;&nbsp;\\&nbsp;&nbsp;/&nbsp;&nbsp;|/&nbsp;/&nbsp;/&nbsp;/&nbsp;/|&nbsp;&nbsp;&nbsp;/ </b>");
+            print("<b>&nbsp;/&nbsp;__&nbsp;&nbsp;/&nbsp;/___/&nbsp;/&nbsp;/|&nbsp;&nbsp;/&nbsp;/_/&nbsp;//&nbsp;&nbsp;&nbsp;|  </b>");
+            print("<b>/_/&nbsp;/_/_____/_/_/&nbsp;|_/\\____//_/|_|  </b>");
+            print("<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version " + this.version + " By " + this.author + "</b>");
         },
 
         histID: 0,
