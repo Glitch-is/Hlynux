@@ -225,8 +225,8 @@ var Hlynux = {
         // getOUT("date").push(getDateTime());
     },
 
-    expandRelative: function(path){
-        var cwd = "";
+    expandRelative: function(path, cwd){
+        if(typeof cwd === "undefined") cwd = "";
         for(var offset=0; offset < path.length; offset++){
             if(path[offset] === "~"){
                 cwd = Hlynux.envVars["HOME"];
