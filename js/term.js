@@ -194,7 +194,8 @@ function updateCMD(promp){
             "man": Hlynux.man,
             "startx": Hlynux.startx,
             "write": Hlynux.write,
-            "append": Hlynux.append
+            "append": Hlynux.append,
+            "tutorial": Tutorial.init
         }
     }
 
@@ -293,6 +294,8 @@ function updateCMD(promp){
             if(com == "")
                 return;
             Hlynux.addHistory(com);
+            if(Tutorial.enabled)
+                Tutorial.check(com);
             var c = Terminal.CommandParser(com);
             if (c !== false)
                 Terminal.execute(c);

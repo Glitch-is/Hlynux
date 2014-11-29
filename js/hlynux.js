@@ -724,7 +724,7 @@ var manual = function(){
                 "-->--><r><b>man</r></b>" +
                 "-->--><r><b>startx</r></b>" +
                 "-->--><r><b>write</r></b>" +
-                "-->--><r><b>append</r></b>"
+                "-->--><r><b>append</r></b>",
 
         man:    "<r><b>NAME</b></r>\n" +
                 "-->man - an interface to the on-line reference manuals\n" +
