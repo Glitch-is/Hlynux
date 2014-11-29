@@ -2,12 +2,14 @@ Terminal:
     Fix Multiple Spaces not displaying
 
 Hlynux:
-    rm
-    rmdir
     Add users
     sudo
     figlet
     setfont - Why not?
     $PATH
-    Canvas Display Server
     cat line numbers
+    
+Tutorial:
+    Tasks
+    Levels?
+    I'm not sure how this will go
