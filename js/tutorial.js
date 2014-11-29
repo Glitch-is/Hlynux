@@ -164,8 +164,8 @@ var Tutorial = {
                 'font-size': '5rem',
                 'float' : 'left',
                 'position' : 'fixed',
-                'left' : '45%',
-                'top' : '44%'
+                'left' : "45%",
+                'top' : "44%"
             });
             animate("gratz");
             Tutorial.next();
@@ -182,8 +182,8 @@ var Tutorial = {
                 'font-size': '5rem',
                 'float' : 'left',
                 'position' : 'fixed',
-                'left' : $("#gratz").width() / 2 + "px",
-                'top' : $("#gratz").height() / 2 + "px"
+                'left' : "45%",
+                'top' : "44%"
             });
             animate("gratz");
             Tutorial.enabled = false;
