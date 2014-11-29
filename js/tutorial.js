@@ -163,7 +163,7 @@ var Tutorial = {
             $('#gratz').css({
                 'font-size': '5rem',
                 'float' : 'left',
-                'position' : 'absolute',
+                'position' : 'fixed',
                 'left' : '45%',
                 'top' : '44%'
             });
@@ -181,9 +181,9 @@ var Tutorial = {
             $('#gratz').css({
                 'font-size': '5rem',
                 'float' : 'left',
-                'position' : 'absolute',
-                'left' : '45%',
-                'top' : '44%'
+                'position' : 'fixed',
+                'left' : $("#gratz").width() / 2 + "px",
+                'top' : $("#gratz").height() / 2 + "px"
             });
             animate("gratz");
             Tutorial.enabled = false;
