@@ -271,6 +271,7 @@ function updateCMD(promp){
             print("<b>&nbsp;/&nbsp;__&nbsp;&nbsp;/&nbsp;/___/&nbsp;/&nbsp;/|&nbsp;&nbsp;/&nbsp;/_/&nbsp;//&nbsp;&nbsp;&nbsp;|  </b>");
             print("<b>/_/&nbsp;/_/_____/_/_/&nbsp;|_/\\____//_/|_|  </b>");
             print("<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version " + this.version + " By " + this.author + "</b>");
+            print("Type <code>tutorial</code> if you're confused");
         },
 
         histID: 0,

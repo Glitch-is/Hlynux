@@ -1,3 +1,17 @@
+function animate(name, out) {
+    var inA = ["bounceIn", "bounceInDown", "bounceInUp","bounceInLeft","bounceInRight","flipInY","lightSpeedIn", "rotateIn","rollIn", "zoomInDown", "zoomInUp", "zoomInLeft", "zoomInRight"];
+    var outA = ["bounceOut", "bounceOutDown", "bounceOutUp","bounceOutLeft","bounceOutRight", "flipOutY","lightSpeedOut", "rotateOut","rollOut", "zoomOutDown", "zoomOutUp", "zoomOutLeft", "zoomOutRight"];
+    $('#'+name).removeClass().addClass(((out ? outA[Math.floor(Math.random()*outA.length)]: inA[Math.floor(Math.random()*inA.length)])) + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+        setTimeout(function()
+        {
+            if(out)
+                $("#"+name).remove();
+            else
+                animate(name, true);
+        }, 1000);
+    });
+};
+
 var Tutorial = {
 
     enabled: false,
@@ -82,13 +96,78 @@ var Tutorial = {
                 return com.trim() === "echo I am $age";
             }
         },
+        {
+            title: "My fingers hurt",
+            desc: "Let's say you wanted to create a shortcut of sorts to a command you used frequently, we could use the <code>alias</code> command to shorten the name of it like so <code>alias d = date</code>. Now when you type <code>d</code> the terminal will interpret it as <code>date</code>",
+            check: function(com){
+                return com.trim() === "alias d = date";
+            }
+        },
+        {
+            title: "Dear diary...",
+            desc: "Unfortunatly Hlynux doesn't have a 'typical' editor, but we can still write to files.<br/>By using output redirection we can divert the standard input to a file using the <code>&gt;&gt;</code> directive. This appends the standard input to a file. Write something to the <code>file</code> we created earlier. When you've finished writing whatever you want press enter because it appends on every new line and then end the editing with <code>ctrl+c</code>",
+            check: function(com){
+                return com.trim() === ">> file";
+            }
+        },
+        {
+            title: "Check your privileges",
+            desc: "Note that when you do <code>ls -la</code> you can see permissions for a file. If you look at the permissions of the file you just write to it would look like this <code>frwxr-xr-x</code>. Let's say we wanted everyone on the system to have write access to the file you just wrote to you would do <code>chmod 777 file</code>",
+            check: function(com){
+                return com.trim() === "chmod 777 file";
+            }
+        },
+        {
+            title: "Get owned",
+            desc: "Similarly you can change the owner of a file with the <code>chown</code> command. Change the owner of <code>file</code> to <code>user</code>",
+            check: function(com){
+                return com.trim() === "chown user file";
+            }
+        },
+        {
+            title: "Links",
+            desc: "If you navigate to the <code>/</code> directory you can see a couple of aqua colored directories with some arrows. Those files are links that direct you to other directories on the system. They can be created with the <code>ln</code> command. Create the link <code>test</code> that directs you to the <code>/home</code> directory. <code>ln home test</code>",
+            check: function(com){
+                return com.trim() === "ln home test";
+            }
+        },
+        {
+            title: "JavaScript",
+            desc: "The <code>js</code> command allows you to run javascript within Hlynux. When given no arguements it executes a javascript interpreter. Press <code>ctrl+c</code> to quit. Here you can use the <code>print()</code> function to print out text to the terminal",
+            check: function(com){
+                return com.trim() === "js";
+            }
+        },
+        {
+            title: "JavaScript files",
+            desc: "If you go to the <code>/bin</code> directory you will find a <code>test.js</code> file. You can run it with <code>js test.js</code>",
+            check: function(com){
+                return com.trim() === "js test.js";
+            }
+        },
+        {
+            title: "Let's create our own JavaScript files",
+            desc: "We can create our own JavaScript programs by writing to a file like we did earlier, create the <code>program.js</code>, write what ever JavaScript you want and run it",
+            check: function(com){
+                return com.trim() === "js program.js";
+            }
+        },
     ],
 
     check: function(com){
         if(Tutorial.tasks[Tutorial.index].check(com))
         {
-            //Display congratz
-            console.log("You're one swood dude");
+            var gratz = ["Gratz!!1", "Radical", "Nice", "Well Done", "Sweet", "Wow", "Fantastic", "Neat", "Swell", "Exquisite"]
+            $("#gratz").remove();
+            $("body").append("<h1 id='gratz'>"+gratz[Math.floor(Math.random()*gratz.length)]+"</h1>")
+            $('#gratz').css({
+                'font-size': '5rem',
+                'float' : 'left',
+                'position' : 'absolute',
+                'left' : '45%',
+                'top' : '44%'
+            });
+            animate("gratz");
             Tutorial.next();
         }
     },
@@ -97,7 +176,16 @@ var Tutorial = {
         Tutorial.index++;
         if(Tutorial.index === Tutorial.tasks.length)
         {
-            //Finished mesg?
+            $("#gratz").remove();
+            $("body").append("<h1 id='gratz'>Congratulations<br/>You finished the Tutorial</h1>")
+            $('#gratz').css({
+                'font-size': '5rem',
+                'float' : 'left',
+                'position' : 'absolute',
+                'left' : '45%',
+                'top' : '44%'
+            });
+            animate("gratz");
             Tutorial.enabled = false;
             $("#tuts").hide();
         }

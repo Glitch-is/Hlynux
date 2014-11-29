@@ -184,9 +184,7 @@ var Hlynux = {
             cmd.print(cmd.STDIN.join("\n"));
         }
     },
-    write: function(arg){
-        console.log(arg);
-        // var arg = getIN("touch")[0];
+    write: function(arg, cmd){
         var p = arg;
         var name = p.split("/").slice(-1)[0];
         if(Hlynux.path(p,false) === false)
@@ -196,12 +194,11 @@ var Hlynux = {
         }
         var f = Hlynux.path(p);
         f["~"]["modified"] = getDateTime();
-        f["~"]["content"] = cmd.STDIN.join("\n") + "\n";
+        f["~"]["content"] += cmd.STDIN + "\n";
         updateFS()
     },
 
     append: function(arg, cmd){
-        console.log(arg);
         var file = Hlynux.path($.trim(arg));
         file["~"]["content"] += cmd.STDIN + "\n";
         updateFS();
@@ -251,7 +248,6 @@ var Hlynux = {
 
     path: function(path, errors){
         if(arguments.length < 2) errors = true;
-        // console.log(path);
         var cwd = Hlynux.cwd;
         if(path === "/"){
             return Hlynux.filesystem;
@@ -343,7 +339,7 @@ var Hlynux = {
         {
             //hard
             f = arg[0];
-            f = Hlynux.path(f, true);
+            f = Hlynux.expandPath(f);
             l = arg[1];
             var arr = l.split("/");
             var dir = arr[arr.length - 1];
@@ -352,7 +348,7 @@ var Hlynux = {
         if($.inArray("s", opt) >= 0)
         {
             //soft
-            f = Hlynux.path(f, true);
+            f = Hlynux.expandPath(f);
             var arr = l.split("/");
             var dir = arr[arr.length - 1];
             Hlynux.path(Hlynux.upDirPath(l))[dir] = new link(dir, f);
@@ -363,11 +359,11 @@ var Hlynux = {
     mkdir: function(arg){
         // var arg = getIN("mkdir")[0];
         var p = arg[0];
-        if(Hlynux.path(p) === false)
+        if(Hlynux.path(p, false) === false)
         {
             var arr = p.split("/");
             var dir = arr[arr.length - 1];
-            Hlynux.path(Hlynux.upDirPath(p))[dir] = new directory(dir);
+            Hlynux.path(Hlynux.upDirPath(p), false)[dir] = new directory(dir);
         }
         else
             cmd.print(Hlynux.errorCol("mkdir: cannot create directory '"+p+"': File exists"));
@@ -392,11 +388,13 @@ var Hlynux = {
     },
 
     mv: function(arg){
-        // var arg = getIN("mv")[0];
         var o = arg[0];
         var d = arg[1];
-        Hlynux.path(Hlynux.upDirPath(d))[d] = Hlynux.path(o);
-        delete Hlynux.path(o);
+        if(Hlynux.path(d, false)["~"]["type"] === "d")
+            Hlynux.path(d, false)[o] = Hlynux.path(o, false);
+        else
+            Hlynux.path(Hlynux.upDirPath(d), false)[d] = Hlynux.path(o, false);
+        Hlynux.rm([o]);
         updateFS()
     },
 
@@ -411,9 +409,7 @@ var Hlynux = {
     rm: function(arg){
         // var arg = getIN("rm")[0];
         var p = arg[0];
-        console.log(p);
         var name = p.split("/").slice(-1)[0];
-        console.log(name);
         var dir = Hlynux.path(Hlynux.upDirPath(p));
         if(dir[name]["~"]["type"] == "f")
         {
@@ -428,7 +424,6 @@ var Hlynux = {
         var name = p.split("/").slice(-1)[0];
         if(Hlynux.path(p, false) === false)
         {
-            // console.log(Hlynux.upDirPath(p));
             var p = Hlynux.path(Hlynux.upDirPath(p));
             p[name] = new file(name);
         }
@@ -441,8 +436,7 @@ var Hlynux = {
     },
 
     js: function(arg, cmd){
-        // var arg = getIN("js")[0];
-        if(typeof arg[0] === undefined)
+        if(arg.length === 0)
         {
             var jsInterp = function(data){
                 try
@@ -470,8 +464,6 @@ var Hlynux = {
                 }
                 catch(err)
                 {
-                    // console.log(err.message);
-                    // getOUT("js").push(Hlynux.errorCol(err.message));
                     cmd.print(Hlynux.errorCol("js: Not a file: ") + arg[0]);
                 }
             }
@@ -490,13 +482,14 @@ var Hlynux = {
             Hlynux.cwd = Hlynux.envVars["HOME"];
             return;
         }
-        var d = Hlynux.expandPath(dir, true);
-        console.log(d);
+        var d = Hlynux.path(dir);
         var t;
         if(d['~'] !== undefined){
-            t = Hlynux.path(dir)
+            t = Hlynux.path(dir);
             if(t !== false)
                 t = t["~"]["type"];
+            else
+                t = "d";
         }
         else
             t = "d";
@@ -506,12 +499,11 @@ var Hlynux = {
                 Hlynux.cwd = Hlynux.path(dir)["~"]["path"];
             else if(t == "d")
             {
-                Hlynux.cwd = d;
+                Hlynux.cwd = Hlynux.expandPath(dir);
             }
         }
         else
             cmd.print(Hlynux.errorCol("cd: no such file or directory: ") + dir);
-            // getOUT("cd").push(Hlynux.errorCol("cd: no such file or directory: ") + dir);
     },
 
     ls: function(arg, cmd){
@@ -700,31 +692,32 @@ var manual = function(){
                 "<r><b>COMMANDS</b></r>\n" +
                 "-->List of the available commands\n" +
                 "-->\n" +
-                "-->--><r><b>ls</r></b>" +
-                "-->--><r><b>cd</r></b>" +
-                "-->--><r><b>mkdir</r></b>" +
-                "-->--><r><b>rmdir</r></b>" +
-                "-->--><r><b>pwd</r></b>" +
-                "-->--><r><b>date</r></b>" +
-                "-->--><r><b>export</r></b>" +
-                "-->--><r><b>echo</r></b>" +
-                "-->--><r><b>alias</r></b>" +
-                "-->--><r><b>cat</r></b>" +
-                "-->--><r><b>cats</r></b>" +
-                "-->--><r><b>clear</r></b>" +
-                "-->--><r><b>chmod</r></b>" +
-                "-->--><r><b>chown</r></b>" +
-                "-->--><r><b>mv</r></b>" +
-                "-->--><r><b>cp</r></b>" +
-                "-->--><r><b>rm</r></b>" +
-                "-->--><r><b>touch</r></b>" +
-                "-->--><r><b>js</r></b>" +
-                "-->--><r><b>ln</r></b>" +
-                "-->--><r><b>less</r></b>" +
-                "-->--><r><b>man</r></b>" +
-                "-->--><r><b>startx</r></b>" +
-                "-->--><r><b>write</r></b>" +
-                "-->--><r><b>append</r></b>",
+                "-->--><r><b>tutorial</r></b>\n" +
+                "-->--><r><b>ls</r></b>\n" +
+                "-->--><r><b>cd</r></b>\n" +
+                "-->--><r><b>mkdir</r></b>\n" +
+                "-->--><r><b>rmdir</r></b>\n" +
+                "-->--><r><b>pwd</r></b>\n" +
+                "-->--><r><b>date</r></b>\n" +
+                "-->--><r><b>export</r></b>\n" +
+                "-->--><r><b>echo</r></b>\n" +
+                "-->--><r><b>alias</r></b>\n" +
+                "-->--><r><b>cat</r></b>\n" +
+                "-->--><r><b>cats</r></b>\n" +
+                "-->--><r><b>clear</r></b>\n" +
+                "-->--><r><b>chmod</r></b>\n" +
+                "-->--><r><b>chown</r></b>\n" +
+                "-->--><r><b>mv</r></b>\n" +
+                "-->--><r><b>cp</r></b>\n" +
+                "-->--><r><b>rm</r></b>\n" +
+                "-->--><r><b>touch</r></b>\n" +
+                "-->--><r><b>js</r></b>\n" +
+                "-->--><r><b>ln</r></b>\n" +
+                "-->--><r><b>less</r></b>\n" +
+                "-->--><r><b>man</r></b>\n" +
+                "-->--><r><b>startx</r></b>\n" +
+                "-->--><r><b>write</r></b>\n" +
+                "-->--><r><b>append</r></b>\n",
 
         man:    "<r><b>NAME</b></r>\n" +
                 "-->man - an interface to the on-line reference manuals\n" +
@@ -935,7 +928,7 @@ var manual = function(){
                 "-->chmod - change file mode bits\n" +
                 "-->\n" +
                 "<r><b>SYNOPSIS</b></r>\n" +
-                "--><r><b>chmod</b></r> [<b>OPTION</b>]... <b>OCTAL-MODE FILE</b>]\n" +
+                "--><r><b>chmod</b></r> [<b>OPTION</b>]... <b>OCTAL-MODE FILE</b>\n" +
                 "-->\n" +
                 "<r><b>DESCRIPTION</b></r>\n" +
                 "--><r><b>chmod</b></r> changes the file mode bits of each given file according to <b>mode</b>. which can be either a symbolic representation of changes to make, or an octal number representing the bit pattern for the new mode bits.\n" +
